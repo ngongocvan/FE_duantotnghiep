@@ -200,7 +200,7 @@ const SanPham = () => {
             kichCo: selectdKichCo ? { id: selectdKichCo } : null,
             anhGiay: selectedAnhGiay ? { id: selectedAnhGiay } : null,
 
-        };
+        }; 
         try {
             await addGiay(newDataGiay);
             message.success("Thêm sản phẩm thành công !");

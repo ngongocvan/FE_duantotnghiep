@@ -1,5 +1,5 @@
 import React from 'react'
-import { Input } from 'antd'
+
 const CustomerInput = (props) => {
     const { type, label, i_id, i_class } = props;
     return (

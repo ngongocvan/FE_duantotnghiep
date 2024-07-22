@@ -1,6 +1,7 @@
 import React, { useState } from "react";
 import "./cart.css";
 import { Header } from "../header/Header";
+import { Link } from "react-router-dom";
 
 export const Cart = () => {
   // Lưu trữ thông tin sản phẩm trong một mảng
@@ -24,6 +25,11 @@ export const Cart = () => {
       newProducts[index].count -= 1;
       setProducts(newProducts);
     }
+  };
+  // Hàm xoá sản phẩm
+  const removeProduct = (index) => {
+    const newProducts = products.filter((_, i) => i !== index);
+    setProducts(newProducts);
   };
 
   // Tính tổng giá trị của tất cả các sản phẩm
@@ -49,7 +55,7 @@ export const Cart = () => {
                 <img src={product.img} alt={product.name} />
                 <div style={{ marginTop: "20px" }}>
                   <p>{product.name}</p>
-                  <button>Xóa</button>
+                  <button onClick={() => removeProduct(index)}>Xóa</button>
                 </div>
               </div>
               <div className="prouduct_cart_price">
@@ -73,7 +79,9 @@ export const Cart = () => {
                 Tổng tiền : <p>{totalAmount.toLocaleString()}đ </p>
               </div>
 
-              <button>Thanh toán</button>
+              <button>
+                <Link to={"/bill"}>Thanh toán</Link>
+              </button>
             </div>
           </div>
         </div>

@@ -25,13 +25,18 @@ import Home from "./home/Home";
 import { Footer } from "./footer/Footer";
 import { ProductAll } from "./productAll/ProductAll";
 import { Cart } from "./cart/Cart";
+import { Bill } from "./bill/Bill";
+import { Header } from "./header/Header";
 function App() {
   return (
     <>
+     
       <Router>
         <Routes>
           <Route path="/home" element={<Home />} />
           <Route path="/cart" element={<Cart />} />
+          <Route path="/bill" element={<Bill />} />
+
           <Route path="/productAll" element={<ProductAll />} />
 
           <Route path="/login" element={<Login />} />

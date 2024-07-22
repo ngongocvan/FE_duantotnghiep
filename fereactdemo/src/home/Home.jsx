@@ -70,19 +70,19 @@ export default function Home() {
     },
   ];
   const FeedbackCard = ({ imgSrc, name, title, content }) => (
-  <div >
-    <div className="feedback_content">
-      <div className="feedback_avatar">
-        <img src={imgSrc} alt="" />
-        <div className="feedback_avatar_nd">
-          <p style={{ color: "black", fontSize: "20px", marginLeft: "40px" }}>
-            {name}
-          </p>
-          <p style={{ marginLeft: "100px" }}>{title}</p>
+    <div>
+      <div className="feedback_content">
+        <div className="feedback_avatar">
+          <img src={imgSrc} alt="" />
+          <div className="feedback_avatar_nd">
+            <p style={{ color: "black", fontSize: "20px", marginLeft: "40px" }}>
+              {name}
+            </p>
+            <p style={{ marginLeft: "100px" }}>{title}</p>
+          </div>
         </div>
+        <p>{content}</p>
       </div>
-      <p>{content}</p>
-    </div>
     </div>
   );
 
@@ -214,7 +214,6 @@ export default function Home() {
       </div>
       {/* feedback tu khach hang */}
       <div className="feedback">
-    
         {feedbacks.map((feedback, index) => (
           <FeedbackCard
             key={index}

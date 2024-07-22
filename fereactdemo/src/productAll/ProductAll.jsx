@@ -1,10 +1,24 @@
 import React from "react";
 import { Header } from "../header/Header";
-import { Link } from "react-router-dom";
+import axios from "axios";
 import "./productall.css";
-import { Footer } from "../footer/Footer";
+import { Product } from "../product/Product";
+import { useState, useEffect } from "react";
 
 export const ProductAll = () => {
+  const [products, setProducts] = useState([]);
+  useEffect(() => {
+    const fetchProducts = async () => {
+      try {
+        const response = await axios.get("http://localhost:5000/api/products");
+        setProducts(response.data);
+      } catch (error) {
+        console.error("Error fetching products:", error);
+      }
+    };
+
+    fetchProducts();
+  }, []);
   return (
     <div className="productAll_container">
       <Header />
@@ -152,7 +166,21 @@ export const ProductAll = () => {
           </div>
 
           {/* không gian hiển thị sản phẩm */}
-          <div className="show_product"></div>
+          <div className="show_product">
+
+          <div>
+      {products.map((product) => (
+        <Product
+          key={product.id}
+          imgSrc={product.imgSrc}
+          description={product.description}
+          price={product.price}
+          buttonText={product.buttonText}
+          saleText={product.saleText}
+        />
+      ))}
+    </div>
+          </div>
         </div>
       </div>
       {/* <Footer /> */}
