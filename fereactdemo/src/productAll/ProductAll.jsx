@@ -6,19 +6,74 @@ import { Product } from "../product/Product";
 import { useState, useEffect } from "react";
 
 export const ProductAll = () => {
-  const [products, setProducts] = useState([]);
-  useEffect(() => {
-    const fetchProducts = async () => {
-      try {
-        const response = await axios.get("http://localhost:5000/api/products");
-        setProducts(response.data);
-      } catch (error) {
-        console.error("Error fetching products:", error);
-      }
-    };
+  const list_product = [
+    {
+      imgSrc: "../anhgiay/anh1.jpg",
+      description: "Demo sản phẩm thuộc tính 1",
+      price: "50.000",
+      buttonText: "Thêm vào giỏ hàng",
+      saleText: "Sale",
+    },
+    {
+      imgSrc: "../anhgiay/anh2.jpg",
+      altText: "Sản phẩm 2",
+      description: "Demo sản phẩm thuộc tính 2",
+      price: "500.000",
+      buttonText: "Thêm vào giỏ hàng",
+      saleText: "Sale",
+    },
+    {
+      imgSrc: "../anhgiay/anh3.jpg",
+      altText: "Sản phẩm 2",
+      description: "Demo sản phẩm thuộc tính 2",
+      price: "500.000",
+      buttonText: "Thêm vào giỏ hàng",
+      saleText: "Sale",
+    },
+    {
+      imgSrc: "../anhgiay/anh4.jpg",
+      altText: "Sản phẩm 2",
+      description: "Demo sản phẩm thuộc tính 2",
+      price: "500.000",
+      buttonText: "Thêm vào giỏ hàng",
+      saleText: "Sale",
+    },
+    {
+      imgSrc: "../anhgiay/anh5.jpg",
+      altText: "Sản phẩm 2",
+      description: "Demo sản phẩm thuộc tính 2",
+      price: "500.000",
+      buttonText: "Thêm vào giỏ hàng",
+      saleText: "Sale",
+    },
+    {
+      imgSrc: "../anhgiay/anh5.jpg",
+      altText: "Sản phẩm 2",
+      description: "Demo sản phẩm thuộc tính 2",
+      price: "500.000",
+      buttonText: "Thêm vào giỏ hàng",
+      saleText: "Sale",
+    },
+    {
+      imgSrc: "../anhgiay/anh5.jpg",
+      altText: "Sản phẩm 2",
+      description: "Demo sản phẩm thuộc tính 2",
+      price: "500.000",
+      buttonText: "Thêm vào giỏ hàng",
+      saleText: "Sale",
+    },
+    {
+      imgSrc: "../anhgiay/anh5.jpg",
+      altText: "Sản phẩm 2",
+      description: "Demo sản phẩm thuộc tính 2",
+      price: "500.000",
+      buttonText: "Thêm vào giỏ hàng",
+      saleText: "Sale",
+    },
+   
+    
+  ];
 
-    fetchProducts();
-  }, []);
   return (
     <div className="productAll_container">
       <Header />
@@ -167,20 +222,20 @@ export const ProductAll = () => {
 
           {/* không gian hiển thị sản phẩm */}
           <div className="show_product">
-
-          <div>
-      {products.map((product) => (
-        <Product
-          key={product.id}
-          imgSrc={product.imgSrc}
-          description={product.description}
-          price={product.price}
-          buttonText={product.buttonText}
-          saleText={product.saleText}
-        />
-      ))}
-    </div>
+            {list_product.map((product, index) => (
+              <Product
+                key={index}
+                imgSrc={product.imgSrc}
+                altText={product.altText}
+                description={product.description}
+                price={product.price}
+                buttonText={product.buttonText}
+                saleText={product.saleText}
+              />
+            ))}
+            
           </div>
+          {/* Phân trang */}
         </div>
       </div>
       {/* <Footer /> */}

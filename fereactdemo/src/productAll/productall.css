@@ -87,6 +87,7 @@
 
 .show_product {
     width: 100%;
-  
-    background-color: aqua;
+    display: flex;
+    flex-wrap: wrap;
+    gap: 10px;
 }
