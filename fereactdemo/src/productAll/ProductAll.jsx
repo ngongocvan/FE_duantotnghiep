@@ -4,75 +4,36 @@ import axios from "axios";
 import "./productall.css";
 import { Product } from "../product/Product";
 import { useState, useEffect } from "react";
-
+import { getGiay } from "../service/GiayService";
 export const ProductAll = () => {
-  const list_product = [
-    {
-      imgSrc: "../anhgiay/anh1.jpg",
-      description: "Demo sản phẩm thuộc tính 1",
-      price: "50.000",
-      buttonText: "Thêm vào giỏ hàng",
-      saleText: "Sale",
-    },
-    {
-      imgSrc: "../anhgiay/anh2.jpg",
-      altText: "Sản phẩm 2",
-      description: "Demo sản phẩm thuộc tính 2",
-      price: "500.000",
-      buttonText: "Thêm vào giỏ hàng",
-      saleText: "Sale",
-    },
-    {
-      imgSrc: "../anhgiay/anh3.jpg",
-      altText: "Sản phẩm 2",
-      description: "Demo sản phẩm thuộc tính 2",
-      price: "500.000",
-      buttonText: "Thêm vào giỏ hàng",
-      saleText: "Sale",
-    },
-    {
-      imgSrc: "../anhgiay/anh4.jpg",
-      altText: "Sản phẩm 2",
-      description: "Demo sản phẩm thuộc tính 2",
-      price: "500.000",
-      buttonText: "Thêm vào giỏ hàng",
-      saleText: "Sale",
-    },
-    {
-      imgSrc: "../anhgiay/anh5.jpg",
-      altText: "Sản phẩm 2",
-      description: "Demo sản phẩm thuộc tính 2",
-      price: "500.000",
-      buttonText: "Thêm vào giỏ hàng",
-      saleText: "Sale",
-    },
-    {
-      imgSrc: "../anhgiay/anh5.jpg",
-      altText: "Sản phẩm 2",
-      description: "Demo sản phẩm thuộc tính 2",
-      price: "500.000",
-      buttonText: "Thêm vào giỏ hàng",
-      saleText: "Sale",
-    },
-    {
-      imgSrc: "../anhgiay/anh5.jpg",
-      altText: "Sản phẩm 2",
-      description: "Demo sản phẩm thuộc tính 2",
-      price: "500.000",
-      buttonText: "Thêm vào giỏ hàng",
-      saleText: "Sale",
-    },
-    {
-      imgSrc: "../anhgiay/anh5.jpg",
-      altText: "Sản phẩm 2",
-      description: "Demo sản phẩm thuộc tính 2",
-      price: "500.000",
-      buttonText: "Thêm vào giỏ hàng",
-      saleText: "Sale",
-    },
-   
-    
-  ];
+  const [giay, setGiay] = useState([]);
+  useEffect(() => {
+    getAllGiay();
+  }, []);
+  const getAllGiay = async () => {
+    const result = await getGiay();
+    const dataGiay = result.data.map((item, index) => ({
+      key: index,
+      ID: item.id,
+      MA: item.ma,
+      TEN: item.ten,
+      MOTA: item.moTa,
+      GIANHAP: item.giaNhap,
+      GIABAN: item.giaBan,
+      GIASAUKHUYENMAI: item.giaSauKhuyenMai,
+      // DOHOT: item.doHot,
+      // TRANG_THAI: item.trangThai,
+      // THUONG_HIEU: item.thuongHieu ? item.thuongHieu.ten : null,
+      // CHAT_LIEU: item.chatLieu ? item.chatLieu.ten : null,
+      // DE_GIAY: item.deGiay ? item.deGiay.ten : null,
+      // XUAT_XU: item.xuatXu ? item.xuatXu.ten : null,
+      // KIEU_DANG: item.kieuDang ? item.kieuDang.ten : null,
+      // MAU_SAC: item.mauSac ? item.mauSac.ten : null,
+      ANH_GIAY: item.anhGiay ? item.anhGiay.tenUrl : null,
+      // KICH_CO: item.kichCo ? item.kichCo.ten : null,
+    }));
+    setGiay(dataGiay);
+  };
 
   return (
     <div className="productAll_container">
@@ -222,18 +183,13 @@ export const ProductAll = () => {
 
           {/* không gian hiển thị sản phẩm */}
           <div className="show_product">
-            {list_product.map((product, index) => (
-              <Product
-                key={index}
-                imgSrc={product.imgSrc}
-                altText={product.altText}
-                description={product.description}
-                price={product.price}
-                buttonText={product.buttonText}
-                saleText={product.saleText}
-              />
+            {giay.map((item) => (
+              <div key={item.key} className="product_item">
+                <img src={item.ANH_GIAY} alt={item.TEN} />
+                <h2>{item.TEN}</h2>
+                <p>Giá bán: {item.GIABAN} VND</p>
+              </div>
             ))}
-            
           </div>
           {/* Phân trang */}
         </div>
