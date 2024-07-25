@@ -7,6 +7,8 @@ import { CartContext } from "../cart/CartContext";
 export const ProductAll = () => {
   const [giay, setGiay] = useState([]);
   const { addToCart } = useContext(CartContext);
+  const [currentPage, setCurrentPage] = useState(1);
+  const itemsPerPage = 8;
 
   useEffect(() => {
     getAllGiay();
@@ -26,6 +28,36 @@ export const ProductAll = () => {
       ANH_GIAY: item.anhGiay ? item.anhGiay.tenUrl : null,
     }));
     setGiay(dataGiay);
+  };
+
+  const handlePageChange = (pageNumber) => {
+    setCurrentPage(pageNumber);
+  };
+
+  // Tính toán các sản phẩm sẽ hiển thị dựa trên trang hiện tại
+  const indexOfLastItem = currentPage * itemsPerPage;
+  const indexOfFirstItem = indexOfLastItem - itemsPerPage;
+  const currentItems = giay.slice(indexOfFirstItem, indexOfLastItem);
+
+  const renderPagination = () => {
+    const pageNumbers = [];
+    for (let i = 1; i <= Math.ceil(giay.length / itemsPerPage); i++) {
+      pageNumbers.push(i);
+    }
+
+    return (
+      <div className="pagination">
+        {pageNumbers.map((number) => (
+          <button
+            key={number}
+            onClick={() => handlePageChange(number)}
+            className={`page-number ${number === currentPage ? "active" : ""}`}
+          >
+            {number}
+          </button>
+        ))}
+      </div>
+    );
   };
 
   return (
@@ -176,7 +208,7 @@ export const ProductAll = () => {
 
           {/* Không gian hiển thị sản phẩm */}
           <div className="show_product">
-            {giay.map((item) => (
+            {currentItems.map((item) => (
               <div key={item.key} className="product">
                 <img
                   src={`http://localhost:2003/upload/${item.ANH_GIAY}`}
@@ -193,6 +225,9 @@ export const ProductAll = () => {
               </div>
             ))}
           </div>
+
+          {/* Điều hướng phân trang */}
+          {renderPagination()}
         </div>
       </div>
     </div>
