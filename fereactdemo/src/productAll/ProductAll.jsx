@@ -1,15 +1,17 @@
-import React from "react";
+import React, { useState, useEffect, useContext } from "react";
 import { Header } from "../header/Header";
-import axios from "axios";
-import "./productall.css";
-import { Product } from "../product/Product";
-import { useState, useEffect } from "react";
 import { getGiay } from "../service/GiayService";
+import "./productall.css";
+import { CartContext } from "../cart/CartContext";
+
 export const ProductAll = () => {
   const [giay, setGiay] = useState([]);
+  const { addToCart } = useContext(CartContext);
+
   useEffect(() => {
     getAllGiay();
   }, []);
+
   const getAllGiay = async () => {
     const result = await getGiay();
     const dataGiay = result.data.map((item, index) => ({
@@ -21,16 +23,7 @@ export const ProductAll = () => {
       GIANHAP: item.giaNhap,
       GIABAN: item.giaBan,
       GIASAUKHUYENMAI: item.giaSauKhuyenMai,
-      // DOHOT: item.doHot,
-      // TRANG_THAI: item.trangThai,
-      // THUONG_HIEU: item.thuongHieu ? item.thuongHieu.ten : null,
-      // CHAT_LIEU: item.chatLieu ? item.chatLieu.ten : null,
-      // DE_GIAY: item.deGiay ? item.deGiay.ten : null,
-      // XUAT_XU: item.xuatXu ? item.xuatXu.ten : null,
-      // KIEU_DANG: item.kieuDang ? item.kieuDang.ten : null,
-      // MAU_SAC: item.mauSac ? item.mauSac.ten : null,
       ANH_GIAY: item.anhGiay ? item.anhGiay.tenUrl : null,
-      // KICH_CO: item.kichCo ? item.kichCo.ten : null,
     }));
     setGiay(dataGiay);
   };
@@ -43,7 +36,7 @@ export const ProductAll = () => {
       </div>
       <div className="aside_container">
         <div className="aside_left">
-          {/* danh muc san phẩm */}
+          {/* Danh mục sản phẩm */}
           <div className="product-portfolio">
             <div
               className="background"
@@ -74,26 +67,26 @@ export const ProductAll = () => {
               }}
             >
               <div>
-                <p>giay the thao</p>
+                <p>giày thể thao</p>
               </div>
               <div>
-                <p>giay the thao</p>
+                <p>giày thể thao</p>
               </div>
               <div>
-                <p>giay the thao</p>
+                <p>giày thể thao</p>
               </div>
               <div>
-                <p>giay the thao</p>
+                <p>giày thể thao</p>
               </div>
               <div>
-                <p>giay the thao</p>
+                <p>giày thể thao</p>
               </div>
               <div>
-                <p>giay the thao</p>
+                <p>giày thể thao</p>
               </div>
             </div>
           </div>
-          {/* bộ lọc sản phẩm */}
+          {/* Bộ lọc sản phẩm */}
           <div className="product-portfolio" style={{ marginTop: "30px" }}>
             <div
               className="background"
@@ -156,7 +149,7 @@ export const ProductAll = () => {
           </div>
         </div>
 
-        {/* phần hiển thị sản phẩm */}
+        {/* Phần hiển thị sản phẩm */}
         <div className="aside_right">
           <div className="aside_right_content">
             <img src="icongiay.jpg" alt="" />
@@ -178,24 +171,30 @@ export const ProductAll = () => {
             <button>Tên Z-A</button>
             <button>Hàng Mới</button>
             <button>Giá thấp đến cao</button>
-            <button>Giá cao đến thâp</button>
+            <button>Giá cao đến thấp</button>
           </div>
 
-          {/* không gian hiển thị sản phẩm */}
+          {/* Không gian hiển thị sản phẩm */}
           <div className="show_product">
             {giay.map((item) => (
-              <div key={item.key} className="product_item">
-                <img src={item.ANH_GIAY} alt={item.TEN} />
+              <div key={item.key} className="product">
+                <img
+                  src={`http://localhost:2003/upload/${item.ANH_GIAY}`}
+                  alt={item.TEN}
+                  style={{ maxWidth: "100px" }}
+                />
                 <h2>{item.TEN}</h2>
-                <p>Giá bán: {item.GIABAN} VND</p>
+                <p>{item.GIABAN} VND</p>
+                <button
+                  onClick={() => addToCart({ ...item, price: item.GIABAN })}
+                >
+                  Thêm
+                </button>
               </div>
             ))}
           </div>
-          {/* Phân trang */}
         </div>
       </div>
-      {/* <Footer /> */}
-      {/* <Footer /> */}
     </div>
   );
 };

@@ -1,6 +1,6 @@
 import axios from 'axios';
 
-const REST_API_BASE_URL = "http://localhost:2003/fivebee/KichCo";
+const REST_API_BASE_URL = "http://localhost:2003/api/KichCo";
 
 export const getSizes = () => axios.get(REST_API_BASE_URL);
 
