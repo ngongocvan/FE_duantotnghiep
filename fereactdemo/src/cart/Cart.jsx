@@ -26,9 +26,9 @@ export const Cart = () => {
           {cart.map((product, index) => (
             <div className="prouduct_cart" key={index}>
               <div className="prouduct_cart_name">
-                <img src={product.img} alt={product.name} />
+                <img src={product.ANH_GIAY} alt={product.name} />
                 <div style={{ marginTop: "20px" }}>
-                  <p>{product.name}</p>
+                  <p>{product.TEN}</p>
                   <button onClick={() => removeProduct(index)}>Xóa</button>
                 </div>
               </div>

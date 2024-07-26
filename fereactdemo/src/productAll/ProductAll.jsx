@@ -6,6 +6,9 @@ import { CartContext } from "../cart/CartContext";
 
 export const ProductAll = () => {
   const [giay, setGiay] = useState([]);
+  const [filteredGiay, setFilteredGiay] = useState([]);
+  const [priceRange, setPriceRange] = useState([]);
+  const [sortOrder, setSortOrder] = useState("asc"); // Trạng thái sắp xếp
   const { addToCart } = useContext(CartContext);
   const [currentPage, setCurrentPage] = useState(1);
   const itemsPerPage = 8;
@@ -13,6 +16,10 @@ export const ProductAll = () => {
   useEffect(() => {
     getAllGiay();
   }, []);
+
+  useEffect(() => {
+    filterAndSortGiay();
+  }, [priceRange, giay, sortOrder]);
 
   const getAllGiay = async () => {
     const result = await getGiay();
@@ -28,6 +35,7 @@ export const ProductAll = () => {
       ANH_GIAY: item.anhGiay ? item.anhGiay.tenUrl : null,
     }));
     setGiay(dataGiay);
+    setFilteredGiay(dataGiay); // Initialize filteredGiay
   };
 
   const handlePageChange = (pageNumber) => {
@@ -37,11 +45,50 @@ export const ProductAll = () => {
   // Tính toán các sản phẩm sẽ hiển thị dựa trên trang hiện tại
   const indexOfLastItem = currentPage * itemsPerPage;
   const indexOfFirstItem = indexOfLastItem - itemsPerPage;
-  const currentItems = giay.slice(indexOfFirstItem, indexOfLastItem);
+  const currentItems = filteredGiay.slice(indexOfFirstItem, indexOfLastItem);
+
+  const handlePriceRangeChange = (event) => {
+    const value = event.target.value;
+    setPriceRange((prevRanges) =>
+      prevRanges.includes(value)
+        ? prevRanges.filter((range) => range !== value)
+        : [...prevRanges, value]
+    );
+  };
+
+  const handleSortChange = (order) => {
+    setSortOrder(order);
+  };
+
+  const filterAndSortGiay = () => {
+    let filtered = giay;
+
+    // Lọc theo mức giá
+    if (priceRange.length > 0) {
+      filtered = filtered.filter((item) => {
+        const price = item.GIABAN;
+        return priceRange.some((range) => {
+          const [min, max] = range.split("-").map(Number);
+          return price >= min && price <= max;
+        });
+      });
+    }
+
+    // Sắp xếp theo giá
+    filtered = filtered.sort((a, b) => {
+      if (sortOrder === "asc") {
+        return a.GIABAN - b.GIABAN;
+      } else {
+        return b.GIABAN - a.GIABAN;
+      }
+    });
+
+    setFilteredGiay(filtered);
+  };
 
   const renderPagination = () => {
     const pageNumbers = [];
-    for (let i = 1; i <= Math.ceil(giay.length / itemsPerPage); i++) {
+    for (let i = 1; i <= Math.ceil(filteredGiay.length / itemsPerPage); i++) {
       pageNumbers.push(i);
     }
 
@@ -150,31 +197,59 @@ export const ProductAll = () => {
               </p>
 
               <div>
-                <input type="checkbox" name="" id="" />
+                <input
+                  type="checkbox"
+                  value="100000-200000"
+                  onChange={handlePriceRangeChange}
+                />
                 Từ 100k - 200k
               </div>
               <div>
-                <input type="checkbox" name="" id="" />
+                <input
+                  type="checkbox"
+                  value="300000-500000"
+                  onChange={handlePriceRangeChange}
+                />
                 Từ 300k - 500k
               </div>
               <div>
-                <input type="checkbox" name="" id="" />
+                <input
+                  type="checkbox"
+                  value="500000-1000000"
+                  onChange={handlePriceRangeChange}
+                />
                 Từ 500k - 1 triệu
               </div>
               <div>
-                <input type="checkbox" name="" id="" />
+                <input
+                  type="checkbox"
+                  value="1000000-2000000"
+                  onChange={handlePriceRangeChange}
+                />
                 Từ 1 triệu - 2 triệu
               </div>
               <div>
-                <input type="checkbox" name="" id="" />
+                <input
+                  type="checkbox"
+                  value="1500000-3000000"
+                  onChange={handlePriceRangeChange}
+                />
                 Từ 1,5 triệu - 3 triệu
               </div>
               <div>
-                <input type="checkbox" name="" id="" />
+                <input
+                  type="checkbox"
+                  value="3000000-4000000"
+                  onChange={handlePriceRangeChange}
+                />
                 Từ 3 triệu - 4 triệu
               </div>
               <div>
-                <input type="checkbox" name="" id="" />
+                <input
+                  type="checkbox"
+                  value="4000000-5000000"
+                  onChange={handlePriceRangeChange}
+                />
                 Từ 4 triệu - 5 triệu
               </div>
             </div>
@@ -199,11 +274,12 @@ export const ProductAll = () => {
           <div className="sort">
             <img src="sapxep.png" alt="" />
             <p>Sắp xếp theo:</p>
-            <button>Tên A-Z</button>
-            <button>Tên Z-A</button>
-            <button>Hàng Mới</button>
-            <button>Giá thấp đến cao</button>
-            <button>Giá cao đến thấp</button>
+            <button onClick={() => handleSortChange("asc")}>
+              Giá cao đến thấp
+            </button>
+            <button onClick={() => handleSortChange("desc")}>
+              Giá thấp đến cao
+            </button>
           </div>
 
           {/* Không gian hiển thị sản phẩm */}
@@ -211,13 +287,15 @@ export const ProductAll = () => {
             {currentItems.map((item) => (
               <div key={item.key} className="product">
                 <img
+                
                   src={`http://localhost:2003/upload/${item.ANH_GIAY}`}
                   alt={item.TEN}
                   style={{ maxWidth: "100px" }}
                 />
-                <h2>{item.TEN}</h2>
+                <span>{item.TEN}</span>
                 <p>{item.GIABAN} VND</p>
                 <button
+                  className="hover-btn"
                   onClick={() => addToCart({ ...item, price: item.GIABAN })}
                 >
                   Thêm

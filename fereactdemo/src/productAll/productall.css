@@ -124,3 +124,13 @@
     gap: 10px;
     margin-bottom: 20px;
 }
+
+.product {
+    width: 20%;
+
+}
+
+.product img {
+    width: 100%;
+   
+}

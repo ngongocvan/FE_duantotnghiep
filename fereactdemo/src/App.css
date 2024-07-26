@@ -44,6 +44,13 @@
 .background {
   background-color: #FFB700;
 }
+
 strong {
-  color: #FFB700; /* Định nghĩa màu sắc cho thẻ strong */
+  color: #FFB700;
+  /* Định nghĩa màu sắc cho thẻ strong */
+}
+
+.hover-btn:hover {
+  background-color: #FFB700;
+  transform: scale(1.2);
 }
