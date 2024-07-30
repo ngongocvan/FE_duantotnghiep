@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import {
     BellOutlined,
     CarOutlined,
@@ -18,6 +18,7 @@ import { Outlet } from 'react-router-dom';
 import logo from '../assets/logo.png';
 const { Header, Sider, Content } = Layout;
 const AdminLayout = () => {
+
     const [collapsed, setCollapsed] = useState(false);
     const {
         token: { colorBgContainer, borderRadiusLG },
@@ -26,16 +27,38 @@ const AdminLayout = () => {
     const handleMenuItemClick = (key) => {
         navigate(key);
     };
+    const [isLoggedIn, setIsLoggedIn] = useState(false);
+    const [user, setUser] = useState(null);
+    const handleLogout = () => {
+        sessionStorage.removeItem('token');
+        sessionStorage.removeItem('user');
+        setIsLoggedIn(false);
+        setUser(null);
+        window.dispatchEvent(new Event('loginChange'));
+        navigate('/'); // Chuyển hướng về trang chủ sau khi đăng xuất
+    };
+    useEffect(() => {
+        const userData = JSON.parse(sessionStorage.getItem('user'));
+        if (userData) {
+            setUser(userData);
+            setIsLoggedIn(true);
+        }
+    }, []);
+    const renderUserName = () => {
+        if (user && user.roles.includes('ROLE_QUAN_LY')) {
+            return `Quản lý: ${user.hoTen}`;
+        } else if (user && user.roles.includes('ROLE_NHAN_VIEN')) {
+            return `Nhân viên: ${user.hoTen}`;
+        } else {
+            return user?.hoTen || 'Guest';
+        }
+    };
     const navigate = useNavigate();
     const menuItems = (
         <Menu>
-            <Menu.Item key="profile">
-                <UserOutlined />
-                <span>Profile</span>
-            </Menu.Item>
             <Menu.Item key="logout">
                 <UserOutlined />
-                <span>Logout</span>
+                <span onClick={handleLogout}>Logout</span>
             </Menu.Item>
         </Menu>
     );
@@ -144,6 +167,14 @@ const AdminLayout = () => {
                                 {
                                     key: '/admin/khach-hang',
                                     label: 'Khách Hàng'
+                                },
+                                {
+                                    key: '/admin/chuc-vu',
+                                    label: 'Chức Vụ',
+                                },
+                                {
+                                    key: '/admin/hang-khachHang',
+                                    label: 'Hạng Khách Hàng',
                                 }
                             ]
                         },
@@ -187,7 +218,7 @@ const AdminLayout = () => {
                                 <Dropdown overlay={menuItems}>
                                     <Space>
                                         <Avatar icon={<UserOutlined />} />
-                                        <span>Admin</span>
+                                        <span> Hello ! {renderUserName()}</span>
                                     </Space>
                                 </Dropdown>
                             </Space>
