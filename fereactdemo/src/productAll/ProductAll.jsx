@@ -1,15 +1,26 @@
-import React from "react";
+import React, { useState, useEffect, useContext } from "react";
 import { Header } from "../header/Header";
-import axios from "axios";
-import "./productall.css";
-import { Product } from "../product/Product";
-import { useState, useEffect } from "react";
 import { getGiay } from "../service/GiayService";
+import "./productall.css";
+import { CartContext } from "../cart/CartContext";
+
 export const ProductAll = () => {
   const [giay, setGiay] = useState([]);
+  const [filteredGiay, setFilteredGiay] = useState([]);
+  const [priceRange, setPriceRange] = useState([]);
+  const [sortOrder, setSortOrder] = useState("asc"); // Trạng thái sắp xếp
+  const { addToCart } = useContext(CartContext);
+  const [currentPage, setCurrentPage] = useState(1);
+  const itemsPerPage = 8;
+
   useEffect(() => {
     getAllGiay();
   }, []);
+
+  useEffect(() => {
+    filterAndSortGiay();
+  }, [priceRange, giay, sortOrder]);
+
   const getAllGiay = async () => {
     const result = await getGiay();
     const dataGiay = result.data.map((item, index) => ({
@@ -21,18 +32,79 @@ export const ProductAll = () => {
       GIANHAP: item.giaNhap,
       GIABAN: item.giaBan,
       GIASAUKHUYENMAI: item.giaSauKhuyenMai,
-      // DOHOT: item.doHot,
-      // TRANG_THAI: item.trangThai,
-      // THUONG_HIEU: item.thuongHieu ? item.thuongHieu.ten : null,
-      // CHAT_LIEU: item.chatLieu ? item.chatLieu.ten : null,
-      // DE_GIAY: item.deGiay ? item.deGiay.ten : null,
-      // XUAT_XU: item.xuatXu ? item.xuatXu.ten : null,
-      // KIEU_DANG: item.kieuDang ? item.kieuDang.ten : null,
-      // MAU_SAC: item.mauSac ? item.mauSac.ten : null,
       ANH_GIAY: item.anhGiay ? item.anhGiay.tenUrl : null,
-      // KICH_CO: item.kichCo ? item.kichCo.ten : null,
     }));
     setGiay(dataGiay);
+    setFilteredGiay(dataGiay); // Initialize filteredGiay
+  };
+
+  const handlePageChange = (pageNumber) => {
+    setCurrentPage(pageNumber);
+  };
+
+  // Tính toán các sản phẩm sẽ hiển thị dựa trên trang hiện tại
+  const indexOfLastItem = currentPage * itemsPerPage;
+  const indexOfFirstItem = indexOfLastItem - itemsPerPage;
+  const currentItems = filteredGiay.slice(indexOfFirstItem, indexOfLastItem);
+
+  const handlePriceRangeChange = (event) => {
+    const value = event.target.value;
+    setPriceRange((prevRanges) =>
+      prevRanges.includes(value)
+        ? prevRanges.filter((range) => range !== value)
+        : [...prevRanges, value]
+    );
+  };
+
+  const handleSortChange = (order) => {
+    setSortOrder(order);
+  };
+
+  const filterAndSortGiay = () => {
+    let filtered = giay;
+
+    // Lọc theo mức giá
+    if (priceRange.length > 0) {
+      filtered = filtered.filter((item) => {
+        const price = item.GIABAN;
+        return priceRange.some((range) => {
+          const [min, max] = range.split("-").map(Number);
+          return price >= min && price <= max;
+        });
+      });
+    }
+
+    // Sắp xếp theo giá
+    filtered = filtered.sort((a, b) => {
+      if (sortOrder === "asc") {
+        return a.GIABAN - b.GIABAN;
+      } else {
+        return b.GIABAN - a.GIABAN;
+      }
+    });
+
+    setFilteredGiay(filtered);
+  };
+
+  const renderPagination = () => {
+    const pageNumbers = [];
+    for (let i = 1; i <= Math.ceil(filteredGiay.length / itemsPerPage); i++) {
+      pageNumbers.push(i);
+    }
+
+    return (
+      <div className="pagination">
+        {pageNumbers.map((number) => (
+          <button
+            key={number}
+            onClick={() => handlePageChange(number)}
+            className={`page-number ${number === currentPage ? "active" : ""}`}
+          >
+            {number}
+          </button>
+        ))}
+      </div>
+    );
   };
 
   return (
@@ -43,7 +115,7 @@ export const ProductAll = () => {
       </div>
       <div className="aside_container">
         <div className="aside_left">
-          {/* danh muc san phẩm */}
+          {/* Danh mục sản phẩm */}
           <div className="product-portfolio">
             <div
               className="background"
@@ -74,26 +146,26 @@ export const ProductAll = () => {
               }}
             >
               <div>
-                <p>giay the thao</p>
+                <p>giày thể thao</p>
               </div>
               <div>
-                <p>giay the thao</p>
+                <p>giày thể thao</p>
               </div>
               <div>
-                <p>giay the thao</p>
+                <p>giày thể thao</p>
               </div>
               <div>
-                <p>giay the thao</p>
+                <p>giày thể thao</p>
               </div>
               <div>
-                <p>giay the thao</p>
+                <p>giày thể thao</p>
               </div>
               <div>
-                <p>giay the thao</p>
+                <p>giày thể thao</p>
               </div>
             </div>
           </div>
-          {/* bộ lọc sản phẩm */}
+          {/* Bộ lọc sản phẩm */}
           <div className="product-portfolio" style={{ marginTop: "30px" }}>
             <div
               className="background"
@@ -125,38 +197,66 @@ export const ProductAll = () => {
               </p>
 
               <div>
-                <input type="checkbox" name="" id="" />
+                <input
+                  type="checkbox"
+                  value="100000-200000"
+                  onChange={handlePriceRangeChange}
+                />
                 Từ 100k - 200k
               </div>
               <div>
-                <input type="checkbox" name="" id="" />
+                <input
+                  type="checkbox"
+                  value="300000-500000"
+                  onChange={handlePriceRangeChange}
+                />
                 Từ 300k - 500k
               </div>
               <div>
-                <input type="checkbox" name="" id="" />
+                <input
+                  type="checkbox"
+                  value="500000-1000000"
+                  onChange={handlePriceRangeChange}
+                />
                 Từ 500k - 1 triệu
               </div>
               <div>
-                <input type="checkbox" name="" id="" />
+                <input
+                  type="checkbox"
+                  value="1000000-2000000"
+                  onChange={handlePriceRangeChange}
+                />
                 Từ 1 triệu - 2 triệu
               </div>
               <div>
-                <input type="checkbox" name="" id="" />
+                <input
+                  type="checkbox"
+                  value="1500000-3000000"
+                  onChange={handlePriceRangeChange}
+                />
                 Từ 1,5 triệu - 3 triệu
               </div>
               <div>
-                <input type="checkbox" name="" id="" />
+                <input
+                  type="checkbox"
+                  value="3000000-4000000"
+                  onChange={handlePriceRangeChange}
+                />
                 Từ 3 triệu - 4 triệu
               </div>
               <div>
-                <input type="checkbox" name="" id="" />
+                <input
+                  type="checkbox"
+                  value="4000000-5000000"
+                  onChange={handlePriceRangeChange}
+                />
                 Từ 4 triệu - 5 triệu
               </div>
             </div>
           </div>
         </div>
 
-        {/* phần hiển thị sản phẩm */}
+        {/* Phần hiển thị sản phẩm */}
         <div className="aside_right">
           <div className="aside_right_content">
             <img src="icongiay.jpg" alt="" />
@@ -174,28 +274,40 @@ export const ProductAll = () => {
           <div className="sort">
             <img src="sapxep.png" alt="" />
             <p>Sắp xếp theo:</p>
-            <button>Tên A-Z</button>
-            <button>Tên Z-A</button>
-            <button>Hàng Mới</button>
-            <button>Giá thấp đến cao</button>
-            <button>Giá cao đến thâp</button>
+            <button onClick={() => handleSortChange("asc")}>
+              Giá cao đến thấp
+            </button>
+            <button onClick={() => handleSortChange("desc")}>
+              Giá thấp đến cao
+            </button>
           </div>
 
-          {/* không gian hiển thị sản phẩm */}
+          {/* Không gian hiển thị sản phẩm */}
           <div className="show_product">
-            {giay.map((item) => (
-              <div key={item.key} className="product_item">
-                <img src={item.ANH_GIAY} alt={item.TEN} />
-                <h2>{item.TEN}</h2>
-                <p>Giá bán: {item.GIABAN} VND</p>
+            {currentItems.map((item) => (
+              <div key={item.key} className="product">
+                <img
+                
+                  src={`http://localhost:2003/upload/${item.ANH_GIAY}`}
+                  alt={item.TEN}
+                  style={{ maxWidth: "100px" }}
+                />
+                <span>{item.TEN}</span>
+                <p>{item.GIABAN} VND</p>
+                <button
+                  className="hover-btn"
+                  onClick={() => addToCart({ ...item, price: item.GIABAN })}
+                >
+                  Thêm
+                </button>
               </div>
             ))}
           </div>
-          {/* Phân trang */}
+
+          {/* Điều hướng phân trang */}
+          {renderPagination()}
         </div>
       </div>
-      {/* <Footer /> */}
-      {/* <Footer /> */}
     </div>
   );
 };
