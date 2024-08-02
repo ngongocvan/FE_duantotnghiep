@@ -13,6 +13,7 @@ const Login = () => {
 
     useEffect(() => {
         const roles = JSON.parse(localStorage.getItem('roles') || '[]');
+        // Nếu roles không tồn tại hoặc trống, nghĩa là người dùng chưa đăng nhập
         if (roles.includes('ROLE_QUAN_LY') || roles.includes('ROLE_NHAN_VIEN') || roles.includes('ROLE_KHACH_HANG')) {
             setIsAuthorized(true);
         } else {
