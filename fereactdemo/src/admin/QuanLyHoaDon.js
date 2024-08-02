@@ -1,4 +1,4 @@
-import React, { useState, useRef } from "react";
+import React, { useState, useRef, useEffect } from "react";
 import {
   DatePicker,
   Input,
@@ -13,6 +13,7 @@ import {
 import { SearchOutlined } from "@ant-design/icons";
 import Highlighter from "react-highlight-words";
 import "./quanlyhoadon.css";
+import { getHoaDon } from "../service/HoaDonService";
 
 const QuanLyHoaDon = () => {
   const [searchText, setSearchText] = useState("");
@@ -23,57 +24,41 @@ const QuanLyHoaDon = () => {
   const [form] = Form.useForm();
   const [selectedRowKeys, setSelectedRowKeys] = useState([]);
   const [selectAll, setSelectAll] = useState(false);
-
-  const [data, setData] = useState([
-    {
-      key: "1",
-      order_id: "id cua order",
-      user: "nguyen van a",
-      user_phone: "111111",
-      order_on: "2022-01-01",
-      status: "Placed",
-    },
-    {
-      key: "2",
-      order_id: "id cua order 2",
-      user: "nguyen van b",
-      user_phone: "222222",
-      order_on: "2022-02-01",
-      status: "Packed",
-    },
-    {
-      key: "3",
-      order_id: "id cua order 3",
-      user: "nguyen van c",
-      user_phone: "333333",
-      order_on: "2022-03-01",
-      status: "Shipper",
-    },
-    {
-      key: "4",
-      order_id: "id cua order 4",
-      user: "nguyen van d",
-      user_phone: "444444",
-      order_on: "2022-04-01",
-      status: "Cancelled",
-    },
-    {
-      key: "5",
-      order_id: "id cua order 5",
-      user: "nguyen van e",
-      user_phone: "555555",
-      order_on: "2022-05-01",
-      status: "Cancelled",
-    },
-    {
-        key: "5",
-        order_id: "id cua order 5",
-        user: "nguyen van e",
-        user_phone: "555555",
-        order_on: "2022-05-01",
-        status: "Cancelled",
-      },
-  ]);
+  const [data, setData] = useState([]);
+  const mapTrangThai = (trangThai) => {
+    switch (trangThai) {
+      case 0:
+        return "Placed";
+      case 1:
+        return "Packed";
+      case 2:
+        return "Shipper";
+      case 3:
+        return "Cancelled";
+      default:
+        return "Unknown";
+    }
+  };
+  useEffect(() => {
+    fetchHoaDon();
+  }, []);
+  const fetchHoaDon = async () => {
+    try {
+      const result = await getHoaDon();
+      const formattedData = result.data.map((item, index) => ({
+        key: item.index,
+        order_id: item.id,
+        user: item.tenNguoiNhan,
+        user_phone: item.sdtNguoiNhan,
+        order_on: new Date(item.ngayTao).toLocaleDateString(), // Định dạng ngày
+        status: mapTrangThai(item.trangThai),
+      }));
+      setData(formattedData);
+    } catch (error) {
+      console.error("Lỗi khi fetch dữ liệu: ", error);
+      message.error("Lỗi khi tải dữ liệu!");
+    }
+  };
 
   const handleSearch = (selectedKeys, confirm, dataIndex) => {
     confirm();
@@ -213,30 +198,28 @@ const QuanLyHoaDon = () => {
       title: "Order ID",
       dataIndex: "order_id",
       key: "order_id",
-      width: "30%",
       ...getColumnSearchProps("order_id"),
     },
     {
-      title: "User Name",
+      title: "Họ tên khách hàng",
       dataIndex: "user",
       key: "user",
-      width: "20%",
       ...getColumnSearchProps("user"),
     },
     {
-      title: "User Phone",
+      title: "Số điện thoại",
       dataIndex: "user_phone",
       key: "user_phone",
       ...getColumnSearchProps("user_phone"),
     },
     {
-      title: "Ordered On",
+      title: "Ngày tạo",
       dataIndex: "order_on",
       key: "order_on",
       ...getColumnSearchProps("order_on"),
     },
     {
-      title: "Status",
+      title: "Trạng thái",
       dataIndex: "status",
       key: "status",
       ...getColumnSearchProps("status"),
