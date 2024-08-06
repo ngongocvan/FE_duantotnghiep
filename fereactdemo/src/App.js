@@ -30,6 +30,7 @@ import { Cart } from './cart/Cart';
 import { Bill } from './bill/Bill';
 import { ProductAll } from './productAll/ProductAll';
 import { CartProvider } from './cart/CartContext';
+import HoaDonChiTiet from './admin/HoaDonChiTiet';
 function App() {
   return (
     <CartProvider>
@@ -45,6 +46,7 @@ function App() {
           <Route path="/admin" element={<AdminLayout />}>
             <Route index element={<Dashbord />} />
             <Route path="/admin/ban-hang-tai-quay" element={<BanHangTaiQuay />} />
+            <Route path="/admin/hoa-don-chi-tiet" element={<HoaDonChiTiet/>} />
             <Route path="/admin/quan-ly-hoa-don" element={<QuanLyHoaDon />} />
             <Route path="/admin/tra-hang" element={<TraHang />} />
             <Route path="/admin/san-pham" element={<SanPham />} />

@@ -10,7 +10,10 @@ const HangKhachHang = () => {
   const [ten, setTen] = useState('');
   const [updatingHangKhachHang, setUpdatingHangKhachHang] = useState(null);
   const [isModalVisible, setIsModalVisible] = useState(false);
-
+  const [activeChatLieu, setActiveChatLieu] = useState([]);
+  const getActiveChatLieu = () => {
+    return hangKhachHang.filter(item => item.TRANG_THAI === 0);
+  }
   const onSelectChange = (newSelectedRowKeys) => {
     console.log('selectedRowKeys changed: ', newSelectedRowKeys);
     setSelectedRowKeys(newSelectedRowKeys);
@@ -39,6 +42,8 @@ const HangKhachHang = () => {
         TEN: item.ten,
         TRANG_THAI: item.trangThai,
       }));
+      const activeChatLieuData = hangKhachHangData.filter(item => item.TRANG_THAI === 0);
+      setActiveChatLieu(activeChatLieuData);
       setHangKhachHang(hangKhachHangData);
     } catch (error) {
       message.error("Lỗi khi tải dữ liệu hạng khách hàng", error);

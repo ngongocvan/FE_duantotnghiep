@@ -13,7 +13,10 @@ const SanPhamChiTiet = () => {
     const [selectedGiay, setSelectedGiay] = useState(null);
     const [isModalVisible, setIsModalVisible] = useState(null);
     const [editingGiayChiTiet, setEditingGiayChiTiet] = useState(null);
-
+    const [activeChatLieu, setActiveChatLieu] = useState([]);
+    const getActiveChatLieu = () => {
+        return giayChiTiet.filter(item => item.TRANG_THAI === 0);
+    }
     const onSelectChange = (newSelectedRowKeys) => {
         console.log('selectedRowKeys changed: ', newSelectedRowKeys);
         setSelectedRowKeys(newSelectedRowKeys);
@@ -25,8 +28,8 @@ const SanPhamChiTiet = () => {
     };
 
     const trangThai = (status) => {
-        return status === 0 ? "Không sử dụng" : "Đang sử dụng";
-    };
+        return status === 0 ? "Đang sử dụng" : "Không sử dụng";
+    }
 
     useEffect(() => {
         getGiayData();
@@ -35,7 +38,8 @@ const SanPhamChiTiet = () => {
 
     const getGiayData = async () => {
         const result = await getGiay();
-        setGiayList(result.data);
+        const activeGiay = result.data.filter(item => item.trangThai === 0);
+        setGiayList(activeGiay);
     };
 
     const getDataGiayChiTiet = async () => {
@@ -47,6 +51,8 @@ const SanPhamChiTiet = () => {
             GIAY: item.giay ? item.giay.ten : null,
             TRANG_THAI: item.trangThai,
         }));
+        const activeChatLieuData = dataGiayChiTiet.filter(item => item.TRANG_THAI === 0);
+        setActiveChatLieu(activeChatLieuData);
         setGiayChiTiet(dataGiayChiTiet);
     };
     const handleGiayChange = (value) => {
@@ -54,7 +60,7 @@ const SanPhamChiTiet = () => {
         setSelectedGiay(value);
     }
     const creatGiayChiTiet = async () => {
-        const newTrangThai = value === 1 ? 1 : 0;
+        const newTrangThai = value === 1 ? 0 : 1;
         const newData = {
             soLuongTon: soLuongTon,
             giay: selectedGiay ? { id: selectedGiay } : null,
@@ -89,7 +95,7 @@ const SanPhamChiTiet = () => {
             const giayChiTiet = response.data;
             setEditingGiayChiTiet(giayChiTiet);
             setSoLuongTon(giayChiTiet.soLuongTon);
-            setValue(giayChiTiet.trangThai === 0 ? 2 : 1);
+            setValue(giayChiTiet.trangThai === 0 ? 1 : 2);
             setSelectedGiay(giayChiTiet.giay ? giayChiTiet.giay.id : null);
             setIsModalVisible(true);
             console.log(giayChiTiet);
@@ -99,7 +105,7 @@ const SanPhamChiTiet = () => {
     };
 
     const editGiayChiTietButton = async () => {
-        const newTrangThai = value === 1 ? 1 : 0;
+        const newTrangThai = value === 1 ? 0 : 1;
         const newDataGiayChiTiet = {
             soLuongTon: soLuongTon,
             giay: selectedGiay ? { id: selectedGiay } : null,

@@ -39,7 +39,11 @@ const Login = () => {
         try {
             const response = await loginCustomer(email, matKhau);
             console.log('Login successful:', response);
-
+            console.log('Employee status:', response.trangThai);
+            if (response.trangThai !== 0) {
+                setError('Tài khoản của bạn không hoạt động.');
+                return;
+            }
             sessionStorage.setItem('token', response.jwt);
             sessionStorage.setItem('user', JSON.stringify({
                 username: response.username,

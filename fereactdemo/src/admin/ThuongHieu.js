@@ -11,6 +11,10 @@ const ThuongHieu = () => {
     const [selectedRowKeys, setSelectedRowKeys] = useState([]);
     const [value, setValue] = useState(1);
     const [edittingThuongHieu, setEdittingThuongHieu] = useState(null);
+    const [activeChatLieu, setActiveChatLieu] = useState([]);
+    const getActiveChatLieu = () => {
+        return thuongHieu.filter(item => item.TRANG_THAI === 0);
+    }
     const onSelectChange = (newSelectedRowKeys) => {
         console.log('selectedRowKeys changed: ', newSelectedRowKeys);
         setSelectedRowKeys(newSelectedRowKeys);
@@ -21,7 +25,7 @@ const ThuongHieu = () => {
     };
 
     const trangThai = (status) => {
-        return status === 0 ? "Không sử dụng" : "Đang sử dụng";
+        return status === 0 ? "Đang sử dụng" : "Không sử dụng";
     }
     useEffect(() => {
         getAllThuongHieu();
@@ -36,6 +40,8 @@ const ThuongHieu = () => {
             TEN_URL: item.tenUrl,
             TRANG_THAI: item.trangThai,
         }));
+        const activeChatLieuData = thuongHieuDaTa.filter(item => item.TRANG_THAI === 0);
+        setActiveChatLieu(activeChatLieuData);
         setThuongHieu(thuongHieuDaTa);
     };
     const creatThuongHieu = async () => {
@@ -43,7 +49,7 @@ const ThuongHieu = () => {
             message.error("Không được để trống tên và mã");
             return;
         }
-        const newTrangThai = value === 1 ? 1 : 0;
+        const newTrangThai = value === 1 ? 0 : 1;
         const newThuongHieu = {
             ma: ma,
             ten: ten,
@@ -74,12 +80,12 @@ const ThuongHieu = () => {
         setMa(record.MA);
         setTen(record.TEN);
         setTenUrl(record.TEN_URL);
-        setValue(record.TRANG_THAI === 0 ? 2 : 1);
+        setValue(record.TRANG_THAI === 0 ? 1 : 2);
         setIsModalVisible(true);
     };
 
     const editThuongHieuButton = async () => {
-        const updateTrangThai = value === 1 ? 1 : 0;
+        const updateTrangThai = value === 1 ? 0 : 1;
         const updateNewThuongHieu = {
             ma: ma,
             ten: ten,

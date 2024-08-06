@@ -29,7 +29,7 @@ export const loginCustomer = async (email, matKhau) => {
                     errorMessage = 'Tài khoản không tồn tại. Vui lòng đăng ký.';
                     break;
                 case 500:
-                    errorMessage = 'Lỗi server. Vui lòng thử lại sau.';
+                    errorMessage = 'Tài khoản của bạn không hoạt động.';
                     break;
                 default:
                     errorMessage = error.response.data.message || errorMessage;

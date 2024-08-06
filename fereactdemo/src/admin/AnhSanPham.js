@@ -10,6 +10,11 @@ const AnhSanPham = () => {
     const [editAnhGiay, setEditingAnhGiay] = useState(null);
     const [selectedRowKeys, setSelectedRowKeys] = useState([]);
     const [file, setFile] = useState(null);
+    const [activeChatLieu, setActiveChatLieu] = useState([]);
+    const getActiveChatLieu = () => {
+        return anhGiay.filter(item => item.TRANG_THAI === 0);
+    }
+
     const onSelectChange = (newSelectedRowKeys) => {
         console.log('selectedRowKeys changed: ', newSelectedRowKeys);
         setSelectedRowKeys(newSelectedRowKeys);
@@ -41,6 +46,8 @@ const AnhSanPham = () => {
             TENURL: item.tenUrl,
             TRANG_THAI: item.trangThai,
         }));
+        const activeChatLieuData = anhGiayData.filter(item => item.TRANG_THAI === 0);
+        setActiveChatLieu(activeChatLieuData);
         setAnhGiay(anhGiayData);
     };
 

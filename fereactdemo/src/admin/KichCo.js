@@ -10,7 +10,10 @@ const KichCo = () => {
     const [selectedRowKeys, setSelectedRowKeys] = useState([]);
     const [editingSize, setEditingSize] = useState(null);
     const [isModalVisible, setIsModalVisible] = useState(null);
-
+    const [activeChatLieu, setActiveChatLieu] = useState([]);
+    const getActiveChatLieu = () => {
+        return size.filter(item => item.TRANG_THAI === 0);
+    }
     const convertTrangThai = (status) => {
         return status === 0 ? "Còn" : "Hết";
     };
@@ -29,6 +32,8 @@ const KichCo = () => {
                 TEN: item.ten,
                 TRANG_THAI: item.trangThai,
             }));
+            const activeChatLieuData = sizeData.filter(item => item.TRANG_THAI === 0);
+            setActiveChatLieu(activeChatLieuData);
             setSize(sizeData);
         } catch (error) {
             console.error("Lỗi khi tải dữ liệu kích cỡ:", error);
@@ -126,7 +131,7 @@ const KichCo = () => {
                 <Input placeholder='Tên Kích Cỡ' value={ten} onChange={(e) => setTen(e.target.value)} />
                 <br /><br />
                 <Radio.Group onChange={onChange} value={value}>
-                    <Radio value={1}>Còn</Radio> 
+                    <Radio value={1}>Còn</Radio>
                     <Radio value={2}>Hết</Radio>
                 </Radio.Group>
                 <br /><br />

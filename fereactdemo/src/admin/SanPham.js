@@ -42,6 +42,10 @@ const SanPham = () => {
     const [selectedAnhGiay, setSelectedAnhGiay] = useState(null);
     const [editingGiay, setEditingGiay] = useState(null);
     const [isModalVisible, setIsModalVisible] = useState(false);
+    const [activeChatLieu, setActiveChatLieu] = useState([]);
+    const getActiveChatLieu = () => {
+        return giay.filter(item => item.TRANG_THAI === 0);
+    }
     const onSelectChange = (newSelectedRowKeys) => {
         console.log('selectedRowKeys changed: ', newSelectedRowKeys);
         setSelectedRowKeys(newSelectedRowKeys);
@@ -53,8 +57,8 @@ const SanPham = () => {
     };
 
     const trangThai = (status) => {
-        return status === 0 ? "Không sử dụng" : "Đang sử dụng";
-    };
+        return status === 0 ? "Đang sử dụng" : "Không sử dụng";
+    }
 
     useEffect(() => {
         getAllGiay();
@@ -90,47 +94,57 @@ const SanPham = () => {
             ANH_GIAY: item.anhGiay ? item.anhGiay.tenUrl : null,
             KICH_CO: item.kichCo ? item.kichCo.ten : null,
         }));
+        const activeChatLieuData = dataGiay.filter(item => item.TRANG_THAI === 0);
+        setActiveChatLieu(activeChatLieuData);
         setGiay(dataGiay);
     };
     //viết hàm get để map lên select
     const getThuongHieuList = async () => {
         const result = await getThuongHieu();
-        setThuongHieuList(result.data)
+        const activeThuongHieu = result.data.filter(item => item.trangThai === 0);
+        setThuongHieuList(activeThuongHieu);
     };
 
     const getChatLieuList = async () => {
         const result = await getChatLieu();
-        setChatLieuList(result.data);
+        const activeChatLieu = result.data.filter(item => item.trangThai === 0);
+        setChatLieuList(activeChatLieu);
     };
 
     const getDeGiayList = async () => {
         const result = await getDeGiay();
-        setDeGiayList(result.data);
+        const activeThuongHieu = result.data.filter(item => item.trangThai === 0);
+        setDeGiayList(activeThuongHieu);
     };
 
     const getXuatXuList = async () => {
         const result = await getXuatXu();
-        setXuatXuList(result.data);
+        const activeThuongHieu = result.data.filter(item => item.trangThai === 0);
+        setXuatXuList(activeThuongHieu);
     };
 
     const getKieuDangList = async () => {
         const result = await getKieuDang();
-        setKieuDangList(result.data);
+        const activeThuongHieu = result.data.filter(item => item.trangThai === 0);
+        setKieuDangList(activeThuongHieu);
     };
 
     const getMauSacList = async () => {
         const result = await getMauSac();
-        setMauSacList(result.data);
+        const activeThuongHieu = result.data.filter(item => item.trangThai === 0);
+        setMauSacList(activeThuongHieu);
     };
 
     const getKichCoList = async () => {
         const result = await getSizes();
-        setKichCoList(result.data);
+        const activeThuongHieu = result.data.filter(item => item.trangThai === 0);
+        setKichCoList(activeThuongHieu);
     };
 
     const getAnhGiayList = async () => {
         const result = await getAnhGiay();
-        setAnhGiayList(result.data);
+        const activeThuongHieu = result.data.filter(item => item.trangThai === 0);
+        setAnhGiayList(activeThuongHieu);
     };
     //viết handle để chạy vào state khi thay đổi trong select
     const handleThuongHieuChange = (value) => {
@@ -179,7 +193,7 @@ const SanPham = () => {
             return;
         };
 
-        const newTrangThai = value === 1 ? 1 : 0;
+        const newTrangThai = value === 1 ? 0 : 1;
 
         const newDataGiay = {
             ma: ma,
@@ -248,7 +262,7 @@ const SanPham = () => {
             setGiaBan(giay.giaBan);
             setGiaSauKhuyenMai(giay.giaSauKhuyenMai);
             setDoHot(giay.doHot);
-            setValue(giay.trangThai === 0 ? 2 : 1);
+            setValue(giay.trangThai === 0 ? 1 : 2);
             setSelectedThuongHieu(giay.thuongHieu ? giay.thuongHieu.id : null);
             setSelectedChatLieu(giay.chatLieu ? giay.chatLieu.id : null);
             setSelectedDeGiay(giay.deGiay ? giay.deGiay.id : null);
@@ -268,7 +282,7 @@ const SanPham = () => {
     const editGiayButton = async () => {
         console.log("ID của editingGiay:", editingGiay.id);
 
-        const newTrangThai = value === 1 ? 1 : 0;
+        const newTrangThai = value === 1 ? 0 : 1;
         const newDataGiay = {
             ma: ma,
             ten: ten,

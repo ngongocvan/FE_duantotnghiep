@@ -10,6 +10,10 @@ const MauSac = () => {
     const [selectedRowKeys, setSelectedRowKeys] = useState([]);
     const [editingMauSac, setEditingMauSac] = useState(null);
     const [isModalVisible, setIsModalVisible] = useState(null);
+    const [activeChatLieu, setActiveChatLieu] = useState([]);
+    const getActiveChatLieu = () => {
+        return mauSac.filter(item => item.TRANG_THAI === 0);
+    }
     const onSelectChange = (newSelectedRowKeys) => {
         console.log('selectedRowKeys changed: ', newSelectedRowKeys);
         setSelectedRowKeys(newSelectedRowKeys);
@@ -20,7 +24,7 @@ const MauSac = () => {
     };
 
     const trangThai = (status) => {
-        return status === 0 ? "Không sử dụng" : "Đang sử dụng";
+        return status === 0 ? "Đang sử dụng" : "Không sử dụng";
     }
     useEffect(() => {
         getAllMauSac();
@@ -35,6 +39,8 @@ const MauSac = () => {
                 TEN: item.ten,
                 TRANG_THAI: item.trangThai,
             }));
+            const activeChatLieuData = mauSacData.filter(item => item.TRANG_THAI === 0);
+            setActiveChatLieu(activeChatLieuData);
             setMauSac(mauSacData);
         } catch (error) {
             message.error("Lỗi hiển thị table màu sắc");
@@ -46,7 +52,7 @@ const MauSac = () => {
             message.error("Không được để trống tên và mã");
             return;
         }
-        const newTrangThai = value === 1 ? 1 : 0;
+        const newTrangThai = value === 1 ? 0 : 1;
         const newMauSac = {
             ma: ma,
             ten: ten,
@@ -74,12 +80,12 @@ const MauSac = () => {
         setEditingMauSac(record);
         setMa(record.MA);
         setTen(record.TEN);
-        setValue(record.TRANG_THAI === 0 ? 2 : 1);
+        setValue(record.TRANG_THAI === 0 ? 1 : 2);
         setIsModalVisible(true);
     };
 
     const editMauSacButton = async () => {
-        const updateTrangThai = value === 1 ? 1 : 0;
+        const updateTrangThai = value === 1 ? 0 : 1;
 
         const editNewMauSac = {
             ma: ma,

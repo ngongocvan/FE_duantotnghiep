@@ -18,7 +18,10 @@ const KhachHang = () => {
     const [email, setEmail] = useState("");
     const [isModalVisible, setIsModalVisible] = useState(false); // Adjusted default state
     const [editingKhachHang, setEditingKhachHang] = useState(null);
-
+    const [activeChatLieu, setActiveChatLieu] = useState([]);
+    const getActiveChatLieu = () => {
+        return khachHang.filter(item => item.TRANG_THAI === 0);
+    }
     const onSelectChange = (newSelectedRowKeys) => {
         console.log('selectedRowKeys changed: ', newSelectedRowKeys);
         setSelectedRowKeys(newSelectedRowKeys);
@@ -30,7 +33,7 @@ const KhachHang = () => {
     };
 
     const trangThai = (status) => {
-        return status === 0 ? "Không sử dụng" : "Đang sử dụng";
+        return status === 0 ? "Đang sử dụng" : "Không sử dụng";
     };
 
     const handleKhachHangChange = (value) => {
@@ -44,12 +47,9 @@ const KhachHang = () => {
     }, []);
 
     const getAllHangKhachHangData = async () => {
-        try {
-            const result = await getAllHangKhachHang();
-            setHangKhachHangList(result.data);
-        } catch (error) {
-            message.error("Lỗi khi tải dữ liệu hạng khách hàng");
-        }
+        const result = await getAllHangKhachHang();
+        const activeGiay = result.data.filter(item => item.trangThai === 0);
+        setHangKhachHangList(activeGiay);
     };
 
     const getKhachHangData = async () => {
@@ -65,6 +65,8 @@ const KhachHang = () => {
                 HANGKHACHHANG: item.hangKhachHang ? item.hangKhachHang.ten : null,
                 TRANG_THAI: item.trangThai,
             }));
+            const activeChatLieuData = loadTable.filter(item => item.TRANG_THAI === 0);
+            setActiveChatLieu(activeChatLieuData);
             setKhachHang(loadTable);
         } catch (error) {
             message.error("Lỗi khi tải dữ liệu khách hàng");
@@ -79,13 +81,13 @@ const KhachHang = () => {
 
         const salt = bcrypt.genSaltSync(10);
         const hashedPassword = bcrypt.hashSync(matKhau, salt);
-
+        const newTrangThai = value === 1 ? 0 : 1;
         const newData = {
             ma,
             hoTen,
             matKhau: hashedPassword,
             email,
-            trangThai: value,
+            trangThai: newTrangThai,
             hangKhachHang: { id: selectedHangKhachHang },
         };
 
@@ -119,7 +121,7 @@ const KhachHang = () => {
             setHoTen(khachHang.hoTen);
             setEmail(khachHang.email);
             setMatKhau(khachHang.matKhau);
-            setValue(khachHang.trangThai);
+            setValue(khachHang.trangThai === 0 ? 1 : 2);
             setSelectedHangKhachHang(khachHang.hangKhachHang ? khachHang.hangKhachHang.id : null);
             setIsModalVisible(true);
         } catch (error) {
@@ -139,7 +141,7 @@ const KhachHang = () => {
             email,
             matKhau,
             hangKhachHang: { id: selectedHangKhachHang },
-            trangThai: value
+            trangThai: value === 1 ? 0 : 1,
         };
 
         try {
@@ -255,7 +257,7 @@ const KhachHang = () => {
                     <Form.Item label="Trạng Thái">
                         <Radio.Group onChange={onChange} value={value}>
                             <Radio value={1}>Đang sử dụng</Radio>
-                            <Radio value={0}>Không sử dụng</Radio>
+                            <Radio value={2}>Không sử dụng</Radio>
                         </Radio.Group>
                     </Form.Item>
                 </Form>

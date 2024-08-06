@@ -8,10 +8,11 @@ export const ProductAll = () => {
   const [giay, setGiay] = useState([]);
   const [filteredGiay, setFilteredGiay] = useState([]);
   const [priceRange, setPriceRange] = useState([]);
-  const [sortOrder, setSortOrder] = useState("asc"); // Trạng thái sắp xếp
+  const [sortOrder, setSortOrder] = useState("asc");
   const { addToCart } = useContext(CartContext);
   const [currentPage, setCurrentPage] = useState(1);
   const itemsPerPage = 8;
+  const [activeChatLieu, setActiveChatLieu] = useState([]);
 
   useEffect(() => {
     getAllGiay();
@@ -19,30 +20,58 @@ export const ProductAll = () => {
 
   useEffect(() => {
     filterAndSortGiay();
-  }, [priceRange, giay, sortOrder]);
+  }, [priceRange, activeChatLieu, sortOrder]);
 
   const getAllGiay = async () => {
-    const result = await getGiay();
-    const dataGiay = result.data.map((item, index) => ({
-      key: index,
-      ID: item.id,
-      MA: item.ma,
-      TEN: item.ten,
-      MOTA: item.moTa,
-      GIANHAP: item.giaNhap,
-      GIABAN: item.giaBan,
-      GIASAUKHUYENMAI: item.giaSauKhuyenMai,
-      ANH_GIAY: item.anhGiay ? item.anhGiay.tenUrl : null,
-    }));
-    setGiay(dataGiay);
-    setFilteredGiay(dataGiay); // Initialize filteredGiay
+    try {
+      const result = await getGiay();
+      const dataGiay = result.data.map((item, index) => ({
+        key: index,
+        ID: item.id,
+        MA: item.ma,
+        TEN: item.ten,
+        MOTA: item.moTa,
+        GIANHAP: item.giaNhap,
+        GIABAN: item.giaBan,
+        GIASAUKHUYENMAI: item.giaSauKhuyenMai,
+        TRANG_THAI: item.trangThai,
+        ANH_GIAY: item.anhGiay ? item.anhGiay.tenUrl : null,
+      }));
+      setGiay(dataGiay);
+      setActiveChatLieu(dataGiay.filter(item => item.TRANG_THAI === 0));
+    } catch (error) {
+      console.error('Error fetching data:', error);
+    }
+  };
+
+  const filterAndSortGiay = () => {
+    let filtered = activeChatLieu;
+
+    if (priceRange.length > 0) {
+      filtered = filtered.filter((item) => {
+        const price = item.GIABAN;
+        return priceRange.some((range) => {
+          const [min, max] = range.split("-").map(Number);
+          return price >= min && price <= max;
+        });
+      });
+    }
+
+    filtered = filtered.sort((a, b) => {
+      if (sortOrder === "asc") {
+        return a.GIABAN - b.GIABAN;
+      } else {
+        return b.GIABAN - a.GIABAN;
+      }
+    });
+
+    setFilteredGiay(filtered);
   };
 
   const handlePageChange = (pageNumber) => {
     setCurrentPage(pageNumber);
   };
 
-  // Tính toán các sản phẩm sẽ hiển thị dựa trên trang hiện tại
   const indexOfLastItem = currentPage * itemsPerPage;
   const indexOfFirstItem = indexOfLastItem - itemsPerPage;
   const currentItems = filteredGiay.slice(indexOfFirstItem, indexOfLastItem);
@@ -58,32 +87,6 @@ export const ProductAll = () => {
 
   const handleSortChange = (order) => {
     setSortOrder(order);
-  };
-
-  const filterAndSortGiay = () => {
-    let filtered = giay;
-
-    // Lọc theo mức giá
-    if (priceRange.length > 0) {
-      filtered = filtered.filter((item) => {
-        const price = item.GIABAN;
-        return priceRange.some((range) => {
-          const [min, max] = range.split("-").map(Number);
-          return price >= min && price <= max;
-        });
-      });
-    }
-
-    // Sắp xếp theo giá
-    filtered = filtered.sort((a, b) => {
-      if (sortOrder === "asc") {
-        return a.GIABAN - b.GIABAN;
-      } else {
-        return b.GIABAN - a.GIABAN;
-      }
-    });
-
-    setFilteredGiay(filtered);
   };
 
   const renderPagination = () => {
@@ -115,7 +118,6 @@ export const ProductAll = () => {
       </div>
       <div className="aside_container">
         <div className="aside_left">
-          {/* Danh mục sản phẩm */}
           <div className="product-portfolio">
             <div
               className="background"
@@ -165,7 +167,6 @@ export const ProductAll = () => {
               </div>
             </div>
           </div>
-          {/* Bộ lọc sản phẩm */}
           <div className="product-portfolio" style={{ marginTop: "30px" }}>
             <div
               className="background"
@@ -256,7 +257,6 @@ export const ProductAll = () => {
           </div>
         </div>
 
-        {/* Phần hiển thị sản phẩm */}
         <div className="aside_right">
           <div className="aside_right_content">
             <img src="icongiay.jpg" alt="" />
@@ -282,12 +282,10 @@ export const ProductAll = () => {
             </button>
           </div>
 
-          {/* Không gian hiển thị sản phẩm */}
           <div className="show_product">
             {currentItems.map((item) => (
               <div key={item.key} className="product">
                 <img
-                
                   src={`http://localhost:2003/upload/${item.ANH_GIAY}`}
                   alt={item.TEN}
                   style={{ maxWidth: "100px" }}
@@ -304,7 +302,6 @@ export const ProductAll = () => {
             ))}
           </div>
 
-          {/* Điều hướng phân trang */}
           {renderPagination()}
         </div>
       </div>

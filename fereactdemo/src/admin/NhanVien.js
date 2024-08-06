@@ -16,7 +16,10 @@ const NhanVien = () => {
     const [email, setEmail] = useState("");
     const [isModalVisible, setIsModalVisible] = useState(null);
     const [editingNhanVien, setEditingNhanVien] = useState(null);
-
+    const [activeChatLieu, setActiveChatLieu] = useState([]);
+    const getActiveChatLieu = () => {
+        return nhanVien.filter(item => item.TRANG_THAI === 0);
+    }
     const onSelectChange = (newSelectedRowKeys) => {
         console.log('selectedRowKeys changed: ', newSelectedRowKeys);
         setSelectedRowKeys(newSelectedRowKeys);
@@ -28,7 +31,7 @@ const NhanVien = () => {
     };
 
     const trangThai = (status) => {
-        return status === 0 ? "Không sử dụng" : "Đang sử dụng";
+        return status === 0 ? "Đang sử dụng" : "Không sử dụng";
     };
 
     const handleChucVuChange = (value) => {
@@ -41,7 +44,8 @@ const NhanVien = () => {
     }, []);
     const getAllChucVu = async () => {
         const result = await getChucVu();
-        setChucVuList(result.data);
+        const activeGiay = result.data.filter(item => item.trangThai === 0);
+        setChucVuList(activeGiay);
     };
 
     const getNhanVien = async () => {
@@ -56,6 +60,8 @@ const NhanVien = () => {
             CHUCVU: item.chucVu ? item.chucVu.ten : null,
             TRANG_THAI: item.trangThai,
         }));
+        const activeChatLieuData = loadTable.filter(item => item.TRANG_THAI === 0);
+        setActiveChatLieu(activeChatLieuData);
         setNhanVien(loadTable);
     };
 
@@ -67,7 +73,7 @@ const NhanVien = () => {
         const salt = bcrypt.genSaltSync(10);
         const hashedPassword = bcrypt.hashSync(matKhau, salt);
 
-        const newTrangThai = value === 1 ? 1 : 0;
+        const newTrangThai = value === 1 ? 0 : 1;
         const newData = {
             ma: ma,
             hoTen: hoTen,
@@ -107,10 +113,9 @@ const NhanVien = () => {
             setHoTen(nhanVien.hoTen);
             setEmail(nhanVien.email);
             setMatKhau(nhanVien.matKhau);
-            setValue(nhanVien.trangThai);
+            setValue(nhanVien.trangThai === 0 ? 1 : 2);
             setSelectedChucVu(nhanVien.chucVu ? nhanVien.chucVu.id : null);
             setIsModalVisible(true);
-            console.log(nhanVien);
         } catch (error) {
             message.error("Lỗi khi lấy chi tiết nhân viên");
         }
@@ -120,22 +125,21 @@ const NhanVien = () => {
             message.error("Vui lòng điền đầy đủ thông tin");
             return;
         }
-
         const newDataNhanVien = {
             ma: ma,
             hoTen: hoTen,
             email: email,
             matKhau: matKhau,
             chucVu: selectedChucVu ? { id: selectedChucVu } : null,
-            trangThai: value
+            trangThai: value === 1 ? 0 : 1,
         };
-
         try {
             await updateNhanVien(editingNhanVien.id, newDataNhanVien);
             message.success("Cập nhật nhân viên thành công");
             getNhanVien();
             setIsModalVisible(false);
             resetForm();
+            setValue(null);
         } catch (error) {
             message.error("Lỗi cập nhật nhân viên: " + (error.response?.data?.message || error.message));
         }
@@ -242,7 +246,7 @@ const NhanVien = () => {
                     <Form.Item label="Trạng Thái">
                         <Radio.Group onChange={onChange} value={value}>
                             <Radio value={1}>Đang sử dụng</Radio>
-                            <Radio value={0}>Không sử dụng</Radio>
+                            <Radio value={2}>Không sử dụng</Radio>
                         </Radio.Group>
                     </Form.Item>
                 </Form>

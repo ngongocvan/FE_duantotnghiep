@@ -10,7 +10,10 @@ const ChucVu = () => {
   const [ten, setTen] = useState('');
   const [updatingChucVu, setUpdatingChucVu] = useState(null);
   const [isModalVisible, setIsModalVisible] = useState(false);
-
+  const [activeChatLieu, setActiveChatLieu] = useState([]);
+  const getActiveChatLieu = () => {
+    return chucVu.filter(item => item.TRANG_THAI === 0);
+  }
   const onSelectChange = (newSelectedRowKeys) => {
     console.log('selectedRowKeys changed: ', newSelectedRowKeys);
     setSelectedRowKeys(newSelectedRowKeys);
@@ -39,6 +42,8 @@ const ChucVu = () => {
         TEN: item.ten,
         TRANG_THAI: item.trangThai,
       }));
+      const activeChatLieuData = chucVuData.filter(item => item.TRANG_THAI === 0);
+      setActiveChatLieu(activeChatLieuData);
       setChucVu(chucVuData);
     } catch (error) {
       message.error("Lỗi khi tải dữ liệu chức vụ", error);

@@ -10,6 +10,10 @@ const ChatLieu = () => {
     const [ten, setTen] = useState('');
     const [updattingChatLieu, setUpdateChatLieu] = useState(null);
     const [isModalVisible, setIsModalVisible] = useState(null);
+    const [activeChatLieu, setActiveChatLieu] = useState([]);
+    const getActiveChatLieu = () => {
+        return chatLieu.filter(item => item.TRANG_THAI === 0);
+    }
     const onSelectChange = (newSelectedRowKeys) => {
         console.log('selectedRowKeys changed: ', newSelectedRowKeys);
         setSelectedRowKeys(newSelectedRowKeys);
@@ -37,6 +41,8 @@ const ChatLieu = () => {
                 TEN: item.ten,
                 TRANG_THAI: item.trangThai,
             }));
+            const activeChatLieuData = chatLieuData.filter(item => item.TRANG_THAI === 0);
+            setActiveChatLieu(activeChatLieuData);
             setChatLieu(chatLieuData);
         } catch (error) {
             message.error("Lỗi khi tải dữ liệu chất liệu", error);

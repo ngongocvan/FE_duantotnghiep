@@ -13,8 +13,8 @@ import {
 import { SearchOutlined } from "@ant-design/icons";
 import Highlighter from "react-highlight-words";
 import "./quanlyhoadon.css";
-import { getHoaDon } from "../service/HoaDonService";
-
+import { detailHoaDon, getHoaDon, updateHoaDon } from "../service/HoaDonService";
+import moment from 'moment';
 const QuanLyHoaDon = () => {
     const [searchText, setSearchText] = useState("");
     const [searchedColumn, setSearchedColumn] = useState("");
@@ -25,16 +25,17 @@ const QuanLyHoaDon = () => {
     const [selectedRowKeys, setSelectedRowKeys] = useState([]);
     const [selectAll, setSelectAll] = useState(false);
     const [data, setData] = useState([]);
+    const [isViewOnly, setIsViewOnly] = useState(false);
     const mapTrangThai = (trangThai) => {
         switch (trangThai) {
             case 0:
-                return "Placed";
+                return "Đã đặt";
             case 1:
-                return "Packed";
+                return "Đã đóng gói";
             case 2:
-                return "Shipper";
+                return "Đang giao";
             case 3:
-                return "Cancelled";
+                return "Đã hủy";
             default:
                 return "Unknown";
         }
@@ -42,16 +43,18 @@ const QuanLyHoaDon = () => {
     useEffect(() => {
         fetchHoaDon();
     }, []);
+
     const fetchHoaDon = async () => {
         try {
             const result = await getHoaDon();
-            const formattedData = result.data.map((item, index) => ({
-                key: item.index,
+            const formattedData = result.data.map((item) => ({
+                key: item.id,
                 order_id: item.id,
                 user: item.tenNguoiNhan,
                 user_phone: item.sdtNguoiNhan,
-                order_on: new Date(item.ngayTao).toLocaleDateString(), // Định dạng ngày
+                order_on: item.ngayTao ? moment(item.ngayTao).format('DD/MM/YYYY') : 'N/A',
                 status: mapTrangThai(item.trangThai),
+                trangThai: item.trangThai, // Lưu trạng thái số để dễ cập nhật
             }));
             setData(formattedData);
         } catch (error) {
@@ -115,23 +118,60 @@ const QuanLyHoaDon = () => {
             ),
     });
 
-    const handleEdit = (record) => {
-        setEditingRecord(record);
-        form.setFieldsValue({ status: record.status });
-        setIsModalVisible(true);
+    const handleEdit = async (record) => {
+        try {
+            const response = await detailHoaDon(record.order_id);
+            const hoaDon = response.data;
+            setEditingRecord({
+                ...record,
+                trangThai: hoaDon.trangThai,
+                ngayTao: hoaDon.ngayTao ? moment(hoaDon.ngayTao) : null,
+            });
+            form.setFieldsValue({
+                status: mapTrangThai(hoaDon.trangThai),
+                user: hoaDon.tenNguoiNhan,
+                user_phone: hoaDon.sdtNguoiNhan,
+                order_on: hoaDon.ngayTao ? moment(hoaDon.ngayTao) : null,
+            });
+            setIsViewOnly(true);
+            setIsModalVisible(true);
+        } catch (error) {
+            console.error("Lỗi khi lấy chi tiết hóa đơn:", error);
+            message.error("Có lỗi xảy ra khi lấy chi tiết hóa đơn!");
+        }
     };
 
     const handleSave = () => {
-        form.validateFields().then((values) => {
-            const newData = data.map((item) => {
-                if (item.key === editingRecord.key) {
-                    return { ...item, status: values.status };
-                }
-                return item;
-            });
-            setData(newData);
-            setIsModalVisible(false);
+        form.validateFields().then(async (values) => {
+            const trangThaiMoi = chuyenDoiTrangThai(values.status);
+
+            try {
+                await updateHoaDon(editingRecord.order_id, {
+                    trangThai: trangThaiMoi,
+                    tenNguoiNhan: values.user,
+                    sdtNguoiNhan: values.user_phone,
+                    ngayTao: values.order_on ? values.order_on.format('YYYY-MM-DD') : null,
+                });
+
+                await fetchHoaDon();
+
+                setIsModalVisible(false);
+                message.success("Cập nhật hóa đơn thành công!");
+            } catch (error) {
+                console.error("Lỗi khi cập nhật hóa đơn:", error);
+                message.error("Có lỗi xảy ra khi cập nhật hóa đơn!");
+            }
         });
+    };
+
+    const chuyenDoiTrangThai = (trangThai) => {
+        switch (trangThai) {
+            case "Đã đặt": return 0;
+            case "Đã đóng gói": return 1;
+            case "Đang giao": return 2;
+            case "Đã hủy": return 3;
+            default: return 0;
+        }
     };
 
     const handleDelete = () => {
@@ -176,50 +216,34 @@ const QuanLyHoaDon = () => {
     };
 
     const columns = [
-        // {
-        //   title: (
-        //     <input
-        //       type="checkbox"
-        //       onChange={handleSelectAll}
-        //       checked={selectAll}
-        //     />
-        //   ),
-        //   key: "selection",
-        //   render: (_, record) => (
-        //     <input
-        //       type="checkbox"
-        //       checked={selectedRowKeys.includes(record.key)}
-        //       onChange={() => handleRowSelect(record.key)}
-        //     />
-        //   ),
-        //   width: "10%",
-        // },
         {
             title: "Order ID",
             dataIndex: "order_id",
             key: "order_id",
+            width: "30%",
             ...getColumnSearchProps("order_id"),
         },
         {
-            title: "Họ tên khách hàng",
+            title: "User Name",
             dataIndex: "user",
             key: "user",
+            width: "20%",
             ...getColumnSearchProps("user"),
         },
         {
-            title: "Số điện thoại",
+            title: "User Phone",
             dataIndex: "user_phone",
             key: "user_phone",
             ...getColumnSearchProps("user_phone"),
         },
         {
-            title: "Ngày tạo",
+            title: "Ordered On",
             dataIndex: "order_on",
             key: "order_on",
             ...getColumnSearchProps("order_on"),
         },
         {
-            title: "Trạng thái",
+            title: "Status",
             dataIndex: "status",
             key: "status",
             ...getColumnSearchProps("status"),
@@ -262,10 +286,10 @@ const QuanLyHoaDon = () => {
                             style={{ width: 120 }}
                             onChange={(value) => console.log(`selected ${value}`)}
                             options={[
-                                { value: "Placed", label: "Placed" },
-                                { value: "Packed", label: "Packed" },
-                                { value: "Shipper", label: "Shipper" },
-                                { value: "Cancelled", label: "Cancelled" },
+                                { value: "Đã đặt", label: "Đã đặt" },
+                                { value: "Đã đóng gói", label: "Đã đóng gói" },
+                                { value: "Đang giao", label: "Đang giao" },
+                                { value: "Đã hủy", label: "Đã hủy" },
                             ]}
                         />
                     </div>
@@ -305,21 +329,30 @@ const QuanLyHoaDon = () => {
             </div>
 
             <Modal
-                title="Edit Status"
+                title="Chi tiết và Cập nhật Hóa đơn"
                 visible={isModalVisible}
                 onOk={handleSave}
                 onCancel={() => setIsModalVisible(false)}
             >
                 <Form form={form} layout="vertical">
-                    <Form.Item name="status" label="Status">
+                    <Form.Item name="status" label="Trạng thái">
                         <Select
                             options={[
-                                { value: "Placed", label: "Placed" },
-                                { value: "Packed", label: "Packed" },
-                                { value: "Shipper", label: "Shipper" },
-                                { value: "Cancelled", label: "Cancelled" },
+                                { value: "Đã đặt", label: "Đã đặt" },
+                                { value: "Đã đóng gói", label: "Đã đóng gói" },
+                                { value: "Đang giao", label: "Đang giao" },
+                                { value: "Đã hủy", label: "Đã hủy" },
                             ]}
                         />
+                    </Form.Item>
+                    <Form.Item name="user" label="Tên người nhận">
+                        <Input disabled />
+                    </Form.Item>
+                    <Form.Item name="user_phone" label="Số điện thoại">
+                        <Input disabled />
+                    </Form.Item>
+                    <Form.Item name="order_on" label="Ngày đặt">
+                        <DatePicker format="DD/MM/YYYY" disabled />
                     </Form.Item>
                 </Form>
             </Modal>
