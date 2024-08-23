@@ -8,7 +8,12 @@ export const Header = () => {
   const [isLoggedIn, setIsLoggedIn] = useState(false);
   const [user, setUser] = useState(null);
   const navigate = useNavigate();
-
+  const handleOrderStatusPage = () => {
+    navigate("/OrderStatusPage");
+  };
+  const handleProfile = () => {
+    navigate("/profile");
+  };
   useEffect(() => {
     const checkLoginStatus = () => {
       console.log("Checking login status...");
@@ -62,13 +67,17 @@ export const Header = () => {
 
   const menuItems = (
     <Menu>
-      <Menu.Item key="profile">
+      <Menu.Item key="profile" onClick={handleProfile}>
         <UserOutlined />
         <span>Profile</span>
       </Menu.Item>
       <Menu.Item key="logout" onClick={handleLogout}>
         <UserOutlined />
         <span>Logout</span>
+      </Menu.Item>
+      <Menu.Item key="donMua" onClick={handleOrderStatusPage}>
+        <UserOutlined />
+        <span>Đơn Mua</span>
       </Menu.Item>
     </Menu>
   );

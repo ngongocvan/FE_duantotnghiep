@@ -1,0 +1,33 @@
+/* Đảm bảo layout tổng thể của trang */
+.profile-page {
+    display: flex;
+    flex-direction: column;
+    height: 100vh;
+  }
+  
+  /* Phần chứa cả Sidebar và Profile */
+  .content-wrapper {
+    display: flex;
+    flex: 1;
+  }
+  
+  /* Sidebar nằm bên trái và chiếm 250px chiều rộng */
+  .sidebar {
+    width: 250px;
+    background-color: #f8f9fa;
+    padding: 20px;
+  }
+  
+  /* Profile sẽ nằm bên phải */
+  .profile {
+    flex: 1;
+    padding: 20px;
+    background-color: #fff;
+  }
+  
+  /* Header nằm trên cùng */
+  header {
+    background-color: #f8f9fa;
+    padding: 15px;
+  }
+  

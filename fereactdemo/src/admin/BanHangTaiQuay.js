@@ -8,12 +8,9 @@ const BanHangTaiQuay = () => {
     const [selectedOption, setSelectedOption] = useState(null);
     const [customerMoney, setCustomerMoney] = useState("");
     const [giay, setGiay] = useState([]);
-    const [selectedProducts, setSelectedProducts] = useState({});
+    const [selectedProducts, setSelectedProducts] = useState([]);
     const [totalAmount, setTotalAmount] = useState(0);
     const [changeAmount, setChangeAmount] = useState(0);
-    const [pages, setPages] = useState([{ id: 1 }]);
-    const [pageCounter, setPageCounter] = useState(2);
-    const [selectedPage, setSelectedPage] = useState(1);
 
     const handleChange = (event) => {
         setSelectedOption(event.target.value);
@@ -23,6 +20,7 @@ const BanHangTaiQuay = () => {
         const inputValue = event.target.value;
         setCustomerMoney(inputValue);
 
+        // Calculate and update change amount
         const parsedMoney = parseFloat(inputValue) || 0;
         const total = getTotalAmount();
         if (parsedMoney >= total) {
@@ -34,14 +32,11 @@ const BanHangTaiQuay = () => {
 
     const handleProductClick = (product) => {
         setSelectedProducts((prevSelectedProducts) => {
-            const updatedProducts = { ...prevSelectedProducts };
-            const currentPageProducts = updatedProducts[selectedPage] || [];
-            const productExists = currentPageProducts.some((p) => p.ID === product.ID);
-
-            updatedProducts[selectedPage] = productExists
-                ? currentPageProducts.filter((p) => p.ID !== product.ID)
-                : [...currentPageProducts, product];
-
+            const updatedProducts = prevSelectedProducts.some(
+                (p) => p.ID === product.ID
+            )
+                ? prevSelectedProducts.filter((p) => p.ID !== product.ID)
+                : [...prevSelectedProducts, product];
             localStorage.setItem("selectedProducts", JSON.stringify(updatedProducts));
             return updatedProducts;
         });
@@ -49,8 +44,7 @@ const BanHangTaiQuay = () => {
 
     const handleRemoveProduct = (productId) => {
         setSelectedProducts((prevSelectedProducts) => {
-            const updatedProducts = { ...prevSelectedProducts };
-            updatedProducts[selectedPage] = updatedProducts[selectedPage].filter(
+            const updatedProducts = prevSelectedProducts.filter(
                 (product) => product.ID !== productId
             );
             localStorage.setItem("selectedProducts", JSON.stringify(updatedProducts));
@@ -60,15 +54,12 @@ const BanHangTaiQuay = () => {
 
     const handleQuantityChange = (productId, delta) => {
         setSelectedProducts((prevSelectedProducts) => {
-            const updatedProducts = { ...prevSelectedProducts };
-            updatedProducts[selectedPage] = updatedProducts[selectedPage].map(
-                (product) => {
-                    if (product.ID === productId) {
-                        return { ...product, SOLUONG: product.SOLUONG + delta };
-                    }
-                    return product;
+            const updatedProducts = prevSelectedProducts.map((product) => {
+                if (product.ID === productId) {
+                    return { ...product, SOLUONG: product.SOLUONG + delta };
                 }
-            );
+                return product;
+            });
             localStorage.setItem("selectedProducts", JSON.stringify(updatedProducts));
             return updatedProducts;
         });
@@ -79,11 +70,7 @@ const BanHangTaiQuay = () => {
     };
 
     const getTotalAmount = () => {
-        const currentPageProducts = selectedProducts[selectedPage] || [];
-        return currentPageProducts.reduce(
-            (total, product) => total + calculateTotal(product),
-            0
-        );
+        return selectedProducts.reduce((total, product) => total + calculateTotal(product), 0);
     };
 
     useEffect(() => {
@@ -98,7 +85,7 @@ const BanHangTaiQuay = () => {
 
     useEffect(() => {
         setTotalAmount(getTotalAmount());
-    }, [selectedProducts, selectedPage]);
+    }, [selectedProducts]);
 
     const getAllGiay = async () => {
         const result = await getGiay();
@@ -122,65 +109,18 @@ const BanHangTaiQuay = () => {
         if (parsedMoney < totalAmount) {
             message.error("Tiền khách đưa không đủ!");
         } else {
+            // Xử lý thanh toán thành công ở đây
             message.success("Thanh toán thành công!");
         }
-    };
-
-    const handleAddPage = () => {
-        const nextPageId = pages.length === 0 ? 1 : pageCounter;
-        setPages((prevPages) => [...prevPages, { id: nextPageId }]);
-        setPageCounter(nextPageId + 1);
-        setSelectedPage(nextPageId); // Chọn trang mới khi thêm
-    };
-
-    const handleRemovePage = (pageId) => {
-        const remainingPages = pages.filter((page) => page.id !== pageId);
-        setPages(remainingPages);
-        if (remainingPages.length === 0) {
-            setPageCounter(2);
-            setSelectedPage(1); // Đặt lại page được chọn về 1 khi xóa hết
-        } else if (selectedPage === pageId) {
-            setSelectedPage(remainingPages[0].id); // Chọn page còn lại khi page hiện tại bị xóa
-        }
-    };
-
-    const handleSelectPage = (pageId) => {
-        setSelectedPage(pageId);
     };
 
     return (
         <div className="quay_container">
             <div className="left">
                 <div className="product_list_hd">
-                    <div>
-                        {pages.map((page) => (
-                            <div
-                                key={page.id}
-                                style={{ display: "inline-block", marginRight: "10px" }}
-                            >
-                                <button
-                                    className={
-                                        page.id === selectedPage
-                                            ? "page_button selected"
-                                            : "page_button"
-                                    }
-                                    onClick={() => handleSelectPage(page.id)}
-                                >
-                                    Page {page.id}
-                                </button>
-                                <button
-                                    onClick={() => handleRemovePage(page.id)}
-                                    style={{ marginLeft: "5px", color: "red" }}
-                                >
-                                    x
-                                </button>
-                            </div>
-                        ))}
-                        <button onClick={handleAddPage}>+</button>
-                    </div>
                     Danh Sách Sản Phẩm
                     <div className="selected_products">
-                        {(selectedProducts[selectedPage] || []).map((product) => (
+                        {selectedProducts.map((product) => (
                             <div key={product.ID} className="selected_product">
                                 <div>{product.TEN}</div>
                                 {product.ANH_GIAY && (
@@ -231,7 +171,7 @@ const BanHangTaiQuay = () => {
                                     key={item.key}
                                     onClick={() => handleProductClick(item)}
                                     style={{
-                                        backgroundColor: selectedProducts[selectedPage]?.some(
+                                        backgroundColor: selectedProducts.some(
                                             (product) => product.ID === item.ID
                                         )
                                             ? "#e0f7fa"

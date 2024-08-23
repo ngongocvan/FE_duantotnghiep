@@ -28,17 +28,23 @@ import Register from './signup/Register';
 import Home from './home/Home';
 import { Cart } from './cart/Cart';
 import { Bill } from './bill/Bill';
+import { OrderStatusPage } from './orderstatus/OrderStatusPage';
+import { AddressList } from './address/AddressList';
 import { ProductAll } from './productAll/ProductAll';
-import { CartProvider } from './cart/CartContext';
 import ProductDetail from './sanphamchitiet/ProductDetail';
+// import { CartProvider } from './cart/CartContext';
+import { ProfileUser } from './profile/ProfileUser';
 function App() {
   return (
-    <CartProvider>
+    // <CartProvider>
       <Router>
         <Routes>
           <Route path="/home" element={<Home />} />
           <Route path="/cart" element={<Cart />} />
           <Route path="/bill" element={<Bill />} />
+          <Route path="/OrderStatusPage" element={<OrderStatusPage />} />
+          <Route path="/profile" element={<ProfileUser />} />
+          <Route path="/addresslist" element={<AddressList />} />
           <Route path="/productAll" element={<ProductAll />} />
           <Route path="/product-detail/:id" element={<ProductDetail />} />
           <Route path="/login" element={<Login />} />
@@ -69,7 +75,7 @@ function App() {
           </Route>
         </Routes>
       </Router>
-    </CartProvider>
+    // </CartProvider>
   );
 }
 

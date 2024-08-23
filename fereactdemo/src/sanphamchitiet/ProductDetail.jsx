@@ -1,13 +1,15 @@
 import React, { useState, useEffect, useContext } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import { getGiayDetail } from "../service/GiayService";
-import { CartContext } from "../cart/CartContext";
+// import { CartContext } from "../cart/CartContext";
+import useCart from "../components/Cart";
 import "./sanphamchitiet.css";
 
 const ProductDetail = () => {
   const { id } = useParams();
   const [product, setProduct] = useState(null);
-  const { addToCart } = useContext(CartContext);
+  // const { addToCart } = useContext(CartContext);
+  const { addToCart } = useCart();
   const navigate = useNavigate(); // Hook để điều hướng
 
   useEffect(() => {
@@ -24,7 +26,9 @@ const ProductDetail = () => {
   }, [id]);
 
   const handleAddToCart = () => {
-    addToCart(product);
+    console.log(id);
+    addToCart({ ...product, giayId: id });
+
     navigate("/cart"); // Điều hướng đến trang giỏ hàng sau khi thêm sản phẩm
   };
 

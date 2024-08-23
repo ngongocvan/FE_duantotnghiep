@@ -39,3 +39,17 @@ export const loginCustomer = async (email, matKhau) => {
         throw new Error(JSON.stringify({ status, message: errorMessage }));
     }
 };
+
+export const fetchCustomerId = async () => {
+    try {
+      const token = sessionStorage.getItem('token');
+      const response = await axios.get('http://localhost:2003/api/auth/customer/id', {
+        headers: {
+          Authorization: `Bearer ${token}`
+        }
+      });
+      return response.data
+    } catch (error) {
+      console.error('There was a problem fetching customer ID:', error);
+    }
+  };

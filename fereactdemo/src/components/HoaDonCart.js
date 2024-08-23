@@ -1,22 +1,42 @@
-// import React, { useContext } from "react";
-import "./cart.css";
-import { Header } from "../header/Header";
-import { Link } from "react-router-dom";
-// import { CartContext } from "./CartContext";
-import useCart from "../components/Cart";
+import React, { useEffect, useState } from "react";
+import "./HoaDonCart.css";
+import {getByKhachHangId} from "../service/GioHangChiTietService"
 
-export const Cart = () => {
-  // const { cart, increment, decrement, removeProduct } = useContext(CartContext);
-  const { cart, increment, decrement, removeProduct } = useCart();
+ const Cart = ({customerId, onSetTongTienHang}) => {
+  const [cart, setCart] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
+
+  useEffect(() => {
+    // console.log("customerId:", customerId);
+    if (customerId) {
+      const fetchCard = async () => {
+        try {
+          const response = await getByKhachHangId(customerId);
+          console.log(response.data);
+          const data = Array.isArray(response.data) ? response.data : [response.data];
+          setCart(data);
+        } catch (error) {
+          setError(error.message);
+        } finally {
+          setLoading(false);
+        }
+      };
+    
+      fetchCard();}
+  }, [customerId]);
+  
+  useEffect(() => {
+    onSetTongTienHang(totalAmount)
+  }, [cart]);
 
   const totalAmount = cart.reduce(
     (total, product) => total + (product.giayChiTiet.giay.giaBan || 0) * (product.soLuong || 1),
     0
   );
-
+  if (loading) return <p>Loading...</p>;
+  if (error) return <p>Error: {error}</p>;
   return (
-    <div>
-      <Header />
       <div className="container_cart">
         <div className="cart">
           <div className="cart_content">
@@ -28,10 +48,10 @@ export const Cart = () => {
           {cart.map((product, index) => (
             <div className="prouduct_cart" key={index}>
               <div className="prouduct_cart_name">
-                <img src={product.giayChiTiet.giay.anhGiay.tenUrl} alt={product.giayChiTiet.giay.ten} />
+                <img src={product.giayChiTiet.giay.anhGiay.tenUrl} alt={product.name} />
                 <div style={{ marginTop: "20px" }}>
                   <p>{product.giayChiTiet.giay.ten}</p>
-                  <button onClick={() => removeProduct(product.id)}>Xóa</button>
+                  {/* <button onClick={() => removeProduct(index)}>Xóa</button> */}
                 </div>
               </div>
               <div className="prouduct_cart_price">
@@ -39,9 +59,9 @@ export const Cart = () => {
               </div>
               <div className="prouduct_cart_count">
                 <div className="prouduct_cart_count_count">
-                  <button onClick={() => decrement(product.id,product.soLuong)}>-</button>
+                  {/* <button onClick={() => decrement(index)}>-</button> */}
                   <p>{product.soLuong}</p>
-                  <button onClick={() => increment(product.id,product.soLuong)}>+</button>
+                  {/* <button onClick={() => increment(index)}>+</button> */}
                 </div>
               </div>
               <div className="prouduct_cart_discount">
@@ -57,16 +77,13 @@ export const Cart = () => {
           <div className="total">
             <div className="total_value">
               <div className="total_value_total">
-                Tổng tiền : <p>{totalAmount.toLocaleString()}đ </p>
+                Tổng số tiền : <p>{totalAmount.toLocaleString()}đ </p>
               </div>
 
-              <button>
-                <Link to={"/bill"}>Thanh toán</Link>
-              </button>
             </div>
           </div>
         </div>
       </div>
-    </div>
   );
 };
+export default Cart;
