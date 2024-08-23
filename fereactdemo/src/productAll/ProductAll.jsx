@@ -3,28 +3,33 @@ import { Header } from "../header/Header";
 import { getGiay } from "../service/GiayService";
 import "./productall.css";
 import { CartContext } from "../cart/CartContext";
+import { useNavigate } from "react-router-dom";
+import { getAllGiayChiTiet } from "../service/GiayChiTietService";
 
 export const ProductAll = () => {
   const [giay, setGiay] = useState([]);
+  const [giayChiTiet, setGiayChiTiet] = useState([]);
   const [filteredGiay, setFilteredGiay] = useState([]);
   const [priceRange, setPriceRange] = useState([]);
-  const [sortOrder, setSortOrder] = useState("asc"); // Trạng thái sắp xếp
+  const [sortOrder, setSortOrder] = useState("asc");
   const { addToCart } = useContext(CartContext);
   const [currentPage, setCurrentPage] = useState(1);
   const itemsPerPage = 8;
+  const navigate = useNavigate();
 
   useEffect(() => {
-    getAllGiay();
+    fetchData();
   }, []);
 
   useEffect(() => {
     filterAndSortGiay();
   }, [priceRange, giay, sortOrder]);
 
-  const getAllGiay = async () => {
-    const result = await getGiay();
-    const dataGiay = result.data.map((item, index) => ({
-      key: index,
+  const fetchData = async () => {
+    const resultGiay = await getGiay();
+    const resultGiayChiTiet = await getAllGiayChiTiet();
+
+    const dataGiay = resultGiay.data.map((item) => ({
       ID: item.id,
       MA: item.ma,
       TEN: item.ten,
@@ -33,16 +38,31 @@ export const ProductAll = () => {
       GIABAN: item.giaBan,
       GIASAUKHUYENMAI: item.giaSauKhuyenMai,
       ANH_GIAY: item.anhGiay ? item.anhGiay.tenUrl : null,
+      // Gán giá trị mặc định cho soLuongTon
+      soLuongTon: 0,
     }));
-    setGiay(dataGiay);
-    setFilteredGiay(dataGiay); // Initialize filteredGiay
+
+    const dataGiayChiTiet = resultGiayChiTiet.data;
+
+    // Kết hợp dữ liệu giữa giay và giayChiTiet
+    const combinedData = dataGiay.map((giayItem) => {
+      const matchingGiayChiTiet = dataGiayChiTiet.find(
+        (chiTietItem) => chiTietItem.giay && chiTietItem.giay.id === giayItem.ID
+      );
+      return {
+        ...giayItem,
+        soLuongTon: matchingGiayChiTiet ? matchingGiayChiTiet.soLuongTon : 0,
+      };
+    });
+
+    setGiay(combinedData);
+    setFilteredGiay(combinedData); // Khởi tạo filteredGiay với dữ liệu đã kết hợp
   };
 
   const handlePageChange = (pageNumber) => {
     setCurrentPage(pageNumber);
   };
 
-  // Tính toán các sản phẩm sẽ hiển thị dựa trên trang hiện tại
   const indexOfLastItem = currentPage * itemsPerPage;
   const indexOfFirstItem = indexOfLastItem - itemsPerPage;
   const currentItems = filteredGiay.slice(indexOfFirstItem, indexOfLastItem);
@@ -63,7 +83,6 @@ export const ProductAll = () => {
   const filterAndSortGiay = () => {
     let filtered = giay;
 
-    // Lọc theo mức giá
     if (priceRange.length > 0) {
       filtered = filtered.filter((item) => {
         const price = item.GIABAN;
@@ -74,7 +93,6 @@ export const ProductAll = () => {
       });
     }
 
-    // Sắp xếp theo giá
     filtered = filtered.sort((a, b) => {
       if (sortOrder === "asc") {
         return a.GIABAN - b.GIABAN;
@@ -244,68 +262,47 @@ export const ProductAll = () => {
                 />
                 Từ 3 triệu - 4 triệu
               </div>
-              <div>
-                <input
-                  type="checkbox"
-                  value="4000000-5000000"
-                  onChange={handlePriceRangeChange}
-                />
-                Từ 4 triệu - 5 triệu
-              </div>
             </div>
-          </div>
+
+            </div>
+
         </div>
 
-        {/* Phần hiển thị sản phẩm */}
         <div className="aside_right">
-          <div className="aside_right_content">
-            <img src="icongiay.jpg" alt="" />
-            <div style={{ marginLeft: "20px" }}>
-              <p>Tất cả sản phẩm</p>
-              <span>
-                Chúng tôi luôn cam kết mang đến những sản phẩm chất lượng cao,
-                được chọn lọc kỹ lưỡng từ các nhà sản xuất uy tín trên thế giới.
-                Qua sự kết hợp giữa chất lượng và sự đa dạng, Dola Tool mang đến
-                cho khách hàng lựa chọn tối ưu cho các công việc cơ khí của
-                mình.
-              </span>
-            </div>
-          </div>
-          <div className="sort">
-            <img src="sapxep.png" alt="" />
-            <p>Sắp xếp theo:</p>
-            <button onClick={() => handleSortChange("asc")}>
-              Giá cao đến thấp
-            </button>
-            <button onClick={() => handleSortChange("desc")}>
-              Giá thấp đến cao
-            </button>
-          </div>
-
-          {/* Không gian hiển thị sản phẩm */}
-          <div className="show_product">
-            {currentItems.map((item) => (
-              <div key={item.key} className="product">
-                <img
-                
-                  src={`http://localhost:2003/upload/${item.ANH_GIAY}`}
-                  alt={item.TEN}
-                  style={{ maxWidth: "100px" }}
-                />
-                <span>{item.TEN}</span>
-                <p>{item.GIABAN} VND</p>
-                <button
-                  className="hover-btn"
-                  onClick={() => addToCart({ ...item, price: item.GIABAN })}
+          <div className="all_products">
+            <div className="products_container">
+              {currentItems.map((item, index) => (
+                <div
+                  className="product"
+                  key={index}
+                  onClick={() => navigate(`/product-detail/${item.ID}`)} //}
                 >
-                  Thêm
-                </button>
-              </div>
-            ))}
+                  <img
+                    src={item.ANH_GIAY || "default_image.jpg"}
+                    alt="product"
+                    className="product_image"
+                  />
+                  <h3 className="product_name">{item.TEN}</h3>
+                  <p className="product_price">
+                    {item.GIABAN.toLocaleString()} VND
+                  </p>
+                  <p className="product_stock">
+                    Số lượng: {item.soLuongTon}
+                  </p>
+                  <button
+                    className="add_to_cart_button"
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      addToCart(item);
+                    }}
+                  >
+                    Thêm vào giỏ hàng
+                  </button>
+                </div>
+              ))}
+            </div>
+            {renderPagination()}
           </div>
-
-          {/* Điều hướng phân trang */}
-          {renderPagination()}
         </div>
       </div>
     </div>

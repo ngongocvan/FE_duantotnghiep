@@ -30,6 +30,7 @@ import { Cart } from './cart/Cart';
 import { Bill } from './bill/Bill';
 import { ProductAll } from './productAll/ProductAll';
 import { CartProvider } from './cart/CartContext';
+import ProductDetail from './sanphamchitiet/ProductDetail';
 function App() {
   return (
     <CartProvider>
@@ -39,6 +40,7 @@ function App() {
           <Route path="/cart" element={<Cart />} />
           <Route path="/bill" element={<Bill />} />
           <Route path="/productAll" element={<ProductAll />} />
+          <Route path="/product-detail/:id" element={<ProductDetail />} />
           <Route path="/login" element={<Login />} />
           <Route path="/register" element={<Register />} />
           <Route path="/" element={<Login />} />

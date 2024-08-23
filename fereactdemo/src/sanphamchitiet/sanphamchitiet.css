@@ -1,0 +1,51 @@
+.product-detail {
+    width: 100%;
+    display: flex;
+
+}
+
+.detail_img {
+    width: 55%;
+
+
+}
+
+.detail_img img {
+    width: 80%;
+}
+
+.detail_content {
+    width: 45%;
+    margin-top: 50px;
+
+}
+
+/* sanphamchitiet.css */
+
+.product-detail {
+    display: flex;
+    flex-direction: row;
+    margin: 20px;
+}
+
+
+.detail_content {
+    flex: 2;
+    padding: 10px;
+}
+
+.detail_content h2 {
+    margin: 0 0 10px;
+    font-size: 24px;
+    font-weight: bold;
+}
+
+.detail_content p {
+    margin: 10px 0;
+    font-size: 18px;
+    line-height: 1.6;
+}
+
+.detail_content p:first-of-type {
+    margin-top: 0;
+}

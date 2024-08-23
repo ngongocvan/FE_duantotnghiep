@@ -5,7 +5,6 @@ export const CartContext = createContext();
 export const CartProvider = ({ children }) => {
   const [cart, setCart] = useState([]);
 
-  // Load cart from localStorage when the component mounts
   useEffect(() => {
     const savedCart = localStorage.getItem("cart");
     if (savedCart) {
@@ -13,13 +12,23 @@ export const CartProvider = ({ children }) => {
     }
   }, []);
 
-  // Save cart to localStorage whenever it changes
   useEffect(() => {
     localStorage.setItem("cart", JSON.stringify(cart));
   }, [cart]);
 
   const addToCart = (item) => {
-    setCart([...cart, { ...item, count: 1 }]);
+    const existingProductIndex = cart.findIndex(
+      (product) => product.id === item.id
+    );
+    if (existingProductIndex > -1) {
+      // Update the quantity if the product already exists
+      const newCart = [...cart];
+      newCart[existingProductIndex].count += 1;
+      setCart(newCart);
+    } else {
+      // Add new product to the cart
+      setCart([...cart, { ...item, count: 1 }]);
+    }
   };
 
   const increment = (index) => {
